@@ -9,7 +9,10 @@ import {
 import { ApiBody, ApiCreatedResponse, ApiOkResponse } from "@nestjs/swagger";
 import { UserDto } from "../users/dto/user.dto";
 import { AuthService } from "./auth.service";
-import { LoginUserWithEmailBody } from "./dto/login-user.body";
+import {
+  LoginUserWithEmailBody,
+  LoginUserWithWalletBody,
+} from "./dto/login-user.body";
 import { LoginUserResponse } from "./dto/login-user.response";
 import { RefreshTokenBody } from "./dto/refresh-token.body";
 import { RefreshTokenResponse } from "./dto/refresh-token.response";
@@ -40,6 +43,34 @@ export class AuthController {
 
     const payload = new LoginUserResponse();
     payload.user = new UserDto(req.user);
+    payload.accessToken = accessToken;
+    payload.refreshToken = refreshToken;
+
+    return payload;
+  }
+
+  @Post("login-wallet")
+  @ApiOkResponse({
+    description: "User has been logged in.",
+    type: LoginUserResponse,
+  })
+  async loginWallet(@Body() loginInput: LoginUserWithWalletBody) {
+    const user = await this.authService.validateUserWithWallet(
+      loginInput.address,
+    );
+
+    if (!user) {
+      throw new UnauthorizedException(`Wallet address incorrect.`);
+    }
+
+    const accessToken = await this.authService.generateAccessToken(user);
+    const refreshToken = await this.authService.generateRefreshToken(
+      user,
+      60 * 60 * 24 * 30,
+    );
+
+    const payload = new LoginUserResponse();
+    payload.user = new UserDto(user);
     payload.accessToken = accessToken;
     payload.refreshToken = refreshToken;
 
