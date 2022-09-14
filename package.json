@@ -25,6 +25,8 @@
   "dependencies": {
     "@jenyus-org/nestjs-graphql-utils": "^1.6.1",
     "@mikro-orm/core": "^4.4.4",
+    "@mikro-orm/migrations": "^4.4.4",
+    "@mikro-orm/mysql": "^4.4.4",
     "@mikro-orm/nestjs": "^4.2.0",
     "@mikro-orm/sql-highlighter": "^1.0.1",
     "@nestjs/common": "^7.5.1",

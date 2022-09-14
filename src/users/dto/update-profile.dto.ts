@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class UpdateProfileDto {
   @ApiProperty()
-  readonly username?: string;
+  readonly email?: string;
 
   @ApiProperty()
   readonly firstName?: string;

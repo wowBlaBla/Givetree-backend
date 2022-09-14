@@ -4,7 +4,7 @@
 
 type User {
   id: Int!
-  username: String!
+  email: String!
   firstName: String
   lastName: String
   posts: [Post!]!
@@ -43,7 +43,7 @@ type RegisterUserPayload {
 
 type Query {
   users: [User!]!
-  user(username: String, id: Int): User!
+  user(email: String, id: Int): User!
   me: User!
   posts: [Post!]!
   post(id: Int!): Post!
@@ -60,7 +60,7 @@ type Mutation {
 }
 
 input UpdateProfileInput {
-  username: String
+  email: String
   firstName: String
   lastName: String
 }
@@ -77,7 +77,7 @@ input UpdatePostInput {
 }
 
 input LoginUserInput {
-  username: String!
+  email: String!
   password: String!
 }
 
@@ -86,6 +86,6 @@ input RefreshTokenInput {
 }
 
 input RegisterUserInput {
-  username: String!
+  email: String!
   password: String!
 }

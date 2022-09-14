@@ -15,12 +15,12 @@ export class AuthResolver {
   @Mutation(() => LoginUserPayload)
   async login(@Args("input") input: LoginUserInput) {
     const user = await this.authService.validateUser(
-      input.username,
+      input.email,
       input.password,
     );
 
     if (!user) {
-      return new UserInputError("Username or password incorrect.");
+      return new UserInputError("Email or password incorrect.");
     }
 
     const accessToken = await this.authService.generateAccessToken(user);
@@ -55,15 +55,10 @@ export class AuthResolver {
 
   @Mutation(() => RegisterUserPayload)
   async register(@Args("input") input: RegisterUserInput) {
-    const user = await this.authService.register(
-      input.username,
-      input.password,
-    );
+    const user = await this.authService.register(input.email, input.password);
 
     if (!user) {
-      return new UserInputError(
-        `User by username ${input.username} already exists.`,
-      );
+      return new UserInputError(`User by email ${input.email} already exists.`);
     }
 
     const accessToken = await this.authService.generateAccessToken(user);

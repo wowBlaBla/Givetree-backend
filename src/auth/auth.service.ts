@@ -17,8 +17,8 @@ export class AuthService {
     private refreshTokenRepository: EntityRepository<RefreshToken>,
   ) {}
 
-  async validateUser(username: string, pass: string) {
-    const user = await this.usersService.findOne({ username });
+  async validateUser(email: string, pass: string) {
+    const user = await this.usersService.findOne({ email });
     if (user) {
       const { password, ...result } = user;
       const match = await bcrypt.compare(pass, password);
@@ -102,13 +102,13 @@ export class AuthService {
     return { user, token };
   }
 
-  async register(username: string, pass: string) {
-    let user = await this.usersService.findOne({ username });
+  async register(email: string, pass: string) {
+    let user = await this.usersService.findOne({ email });
     if (user) {
       return null;
     }
     const hashed = await bcrypt.hash(pass, 10);
-    user = await this.usersService.create({ username, password: hashed });
+    user = await this.usersService.create({ email, password: hashed });
     return user;
   }
 }

@@ -11,7 +11,7 @@ interface FindAllArgs {
 
 interface FindOneArgs extends FindAllArgs {
   id?: number;
-  username?: string;
+  email?: string;
   postId?: number;
 }
 
@@ -33,18 +33,18 @@ export class UsersService {
     return this.usersRepository.find({}, relations);
   }
 
-  findOne({ id, username, postId, relations }: FindOneArgs) {
+  findOne({ id, email, postId, relations }: FindOneArgs) {
     if (id) {
       return this.usersRepository.findOne(id, relations);
-    } else if (username) {
+    } else if (email) {
       return this.usersRepository.findOne(
-        { [expr("lower(username)")]: username.toLowerCase() },
+        { [expr("lower(email)")]: email.toLowerCase() },
         relations,
       );
     } else if (postId) {
       return this.usersRepository.findOne({ posts: { id: postId } }, relations);
     } else {
-      throw new Error("One of ID, username or post ID must be provided.");
+      throw new Error("One of ID, email or post ID must be provided.");
     }
   }
 

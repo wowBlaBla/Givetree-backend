@@ -6,7 +6,7 @@ export class UserObject {
   readonly id: number;
 
   @Field()
-  readonly username: string;
+  readonly email: string;
 
   @Field({ nullable: true })
   readonly firstName: string;

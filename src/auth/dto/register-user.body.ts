@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class RegisterUserBody {
   @ApiProperty()
-  username: string;
+  email: string;
 
   @ApiProperty()
   password: string;

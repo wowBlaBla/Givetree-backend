@@ -17,9 +17,9 @@ export class UsersController {
     return users.map((u) => new UserDto(u));
   }
 
-  @Get(":username")
-  async findOne(@Param("username") username: string) {
-    const user = await this.usersService.findOne({ username });
+  @Get(":email")
+  async findOne(@Param("email") email: string) {
+    const user = await this.usersService.findOne({ email });
     return user && new UserDto(user);
   }
 

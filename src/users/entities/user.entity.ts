@@ -11,8 +11,8 @@ import { Post } from "../../posts/entities/post.entity";
 
 @Entity({ tableName: "users" })
 export class User extends BaseEntity {
-  @Property()
-  username: string;
+  @Property({ unique: true })
+  email: string;
 
   @Property()
   password: string;

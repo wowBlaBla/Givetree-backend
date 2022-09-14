@@ -63,7 +63,7 @@ export class AuthController {
   })
   async register(@Body() registerInput: RegisterUserBody) {
     const user = await this.authService.register(
-      registerInput.username,
+      registerInput.email,
       registerInput.password,
     );
 

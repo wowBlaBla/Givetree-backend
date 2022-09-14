@@ -5,9 +5,7 @@ import { User } from "../entities/user.entity";
 
 @Exclude()
 export class UserDto {
-  constructor(
-    partial: Pick<User, "id" | "username" | "firstName" | "lastName">,
-  ) {
+  constructor(partial: Pick<User, "id" | "email" | "firstName" | "lastName">) {
     Object.assign(this, partial);
   }
 
@@ -17,7 +15,7 @@ export class UserDto {
 
   @Expose()
   @ApiProperty()
-  readonly username: string;
+  readonly email: string;
 
   @Expose()
   @ApiProperty()

@@ -35,12 +35,12 @@ export class UsersResolver {
   user(
     @Selections("user", ["posts"]) relations: string[],
     @Args("id", { type: () => Int, nullable: true }) id?: number,
-    @Args("username", { nullable: true }) username?: string,
+    @Args("email", { nullable: true }) email?: string,
   ) {
-    if (!id && !username) {
-      throw new UserInputError("Arguments must be one of ID or username.");
+    if (!id && !email) {
+      throw new UserInputError("Arguments must be one of ID or email.");
     }
-    return this.usersService.findOne({ id, username, relations });
+    return this.usersService.findOne({ id, email, relations });
   }
 
   @Mutation(() => UserObject)
