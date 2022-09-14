@@ -7,7 +7,7 @@ import { UsersModule } from "../users/users.module";
 import { AuthController } from "./auth.controller";
 import { AuthResolver } from "./auth.resolver";
 import { AuthService } from "./auth.service";
-import { RefreshToken } from "./entities/refresh-token.entity";
+import { RefreshToken } from "../database/entities/refresh-token.entity";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 import { LocalStrategy } from "./strategies/local.strategy";
 

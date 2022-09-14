@@ -13,11 +13,11 @@ import { UsersService } from "src/users/users.service";
 import { GqlCurrentUser } from "../auth/decorator/gql-current-user.decorator";
 import { GqlAuthGuard } from "../auth/guards/gql-auth.guard";
 import { UserObject } from "../users/dto/user.object";
-import { User } from "../users/entities/user.entity";
+import { User } from "../database/entities/user.entity";
 import { CreatePostInput } from "./dto/create-post.input";
 import { PostObject } from "./dto/post.object";
 import { UpdatePostInput } from "./dto/update-post.input";
-import { Post } from "./entities/post.entity";
+import { Post } from "../database/entities/post.entity";
 import { PostsService } from "./posts.service";
 
 @Resolver(() => PostObject)

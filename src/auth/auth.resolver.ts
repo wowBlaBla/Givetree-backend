@@ -1,11 +1,11 @@
 import { Args, Mutation, Resolver } from "@nestjs/graphql";
 import { UserInputError } from "apollo-server-express";
 import { AuthService } from "./auth.service";
-import { LoginUserInput } from "./dto/login-user.input";
+import { LoginUserWithEmailInput } from "./dto/login-user.input";
 import { LoginUserPayload } from "./dto/login-user.payload";
 import { RefreshTokenInput } from "./dto/refresh-token.input";
 import { RefreshTokenPayload } from "./dto/refresh-token.payload";
-import { RegisterUserInput } from "./dto/register-user.input";
+import { RegisterUserWithEmailInput } from "./dto/register-user.input";
 import { RegisterUserPayload } from "./dto/register-user.payload";
 
 @Resolver()
@@ -13,7 +13,7 @@ export class AuthResolver {
   constructor(private authService: AuthService) {}
 
   @Mutation(() => LoginUserPayload)
-  async login(@Args("input") input: LoginUserInput) {
+  async loginEmail(@Args("input") input: LoginUserWithEmailInput) {
     const user = await this.authService.validateUser(
       input.email,
       input.password,
@@ -54,7 +54,7 @@ export class AuthResolver {
   }
 
   @Mutation(() => RegisterUserPayload)
-  async register(@Args("input") input: RegisterUserInput) {
+  async registerEmail(@Args("input") input: RegisterUserWithEmailInput) {
     const user = await this.authService.register(input.email, input.password);
 
     if (!user) {

@@ -2,11 +2,14 @@ import { Body, Controller, Post, Request, UseGuards } from "@nestjs/common";
 import { ApiBody, ApiCreatedResponse, ApiOkResponse } from "@nestjs/swagger";
 import { UserDto } from "../users/dto/user.dto";
 import { AuthService } from "./auth.service";
-import { LoginUserBody } from "./dto/login-user.body";
+import { LoginUserWithEmailBody } from "./dto/login-user.body";
 import { LoginUserResponse } from "./dto/login-user.response";
 import { RefreshTokenBody } from "./dto/refresh-token.body";
 import { RefreshTokenResponse } from "./dto/refresh-token.response";
-import { RegisterUserBody } from "./dto/register-user.body";
+import {
+  RegisterUserWithEmailBody,
+  RegisterUserWithWalletBody,
+} from "./dto/register-user.body";
 import { RegisterUserResponse } from "./dto/register-user.response";
 import { LocalAuthGuard } from "./guards/local-auth.guard";
 
@@ -15,13 +18,13 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @UseGuards(LocalAuthGuard)
-  @Post("login")
-  @ApiBody({ type: LoginUserBody })
+  @Post("login-email")
+  @ApiBody({ type: LoginUserWithEmailBody })
   @ApiOkResponse({
     description: "User has been logged in.",
     type: LoginUserResponse,
   })
-  async login(@Request() req) {
+  async loginEmail(@Request() req) {
     const accessToken = await this.authService.generateAccessToken(req.user);
     const refreshToken = await this.authService.generateRefreshToken(
       req.user,
@@ -56,16 +59,38 @@ export class AuthController {
     return payload;
   }
 
-  @Post("register")
+  @Post("register-email")
   @ApiCreatedResponse({
     description: "User has been registered.",
     type: RegisterUserResponse,
   })
-  async register(@Body() registerInput: RegisterUserBody) {
+  async registerWithEmail(@Body() registerInput: RegisterUserWithEmailBody) {
     const user = await this.authService.register(
       registerInput.email,
       registerInput.password,
     );
+
+    const accessToken = await this.authService.generateAccessToken(user);
+    const refreshToken = await this.authService.generateRefreshToken(
+      user,
+      60 * 60 * 24 * 30,
+    );
+
+    const payload = new RegisterUserResponse();
+    payload.user = new UserDto(user);
+    payload.accessToken = accessToken;
+    payload.refreshToken = refreshToken;
+
+    return payload;
+  }
+
+  @Post("register-wallet")
+  @ApiCreatedResponse({
+    description: "User has been registered.",
+    type: RegisterUserResponse,
+  })
+  async registerWithWallet(@Body() registerInput: RegisterUserWithWalletBody) {
+    const user = await this.authService.register(registerInput.address);
 
     const accessToken = await this.authService.generateAccessToken(user);
     const refreshToken = await this.authService.generateRefreshToken(

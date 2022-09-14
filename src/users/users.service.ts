@@ -3,7 +3,7 @@ import { InjectRepository } from "@mikro-orm/nestjs";
 import { Injectable } from "@nestjs/common";
 import { UpdateProfileDto } from "./dto/update-profile.dto";
 import { UpdateProfileInput } from "./dto/update-profile.input";
-import { User } from "./entities/user.entity";
+import { User } from "../database/entities/user.entity";
 
 interface FindAllArgs {
   relations?: string[];
@@ -13,6 +13,7 @@ interface FindOneArgs extends FindAllArgs {
   id?: number;
   email?: string;
   postId?: number;
+  walletAddressId?: number;
 }
 
 @Injectable()
@@ -33,7 +34,7 @@ export class UsersService {
     return this.usersRepository.find({}, relations);
   }
 
-  findOne({ id, email, postId, relations }: FindOneArgs) {
+  findOne({ id, email, postId, walletAddressId, relations }: FindOneArgs) {
     if (id) {
       return this.usersRepository.findOne(id, relations);
     } else if (email) {
@@ -43,8 +44,15 @@ export class UsersService {
       );
     } else if (postId) {
       return this.usersRepository.findOne({ posts: { id: postId } }, relations);
+    } else if (walletAddressId) {
+      return this.usersRepository.findOne(
+        { walletAddresses: { id: walletAddressId } },
+        relations,
+      );
     } else {
-      throw new Error("One of ID, email or post ID must be provided.");
+      throw new Error(
+        "One of ID, email, walletAddressId or post ID must be provided.",
+      );
     }
   }
 

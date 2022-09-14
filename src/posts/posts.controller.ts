@@ -11,7 +11,7 @@ import {
 } from "@nestjs/common";
 import { CurrentUser } from "src/auth/decorator/current-user.decorator";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
-import { User } from "src/users/entities/user.entity";
+import { User } from "src/database/entities/user.entity";
 import { CreatePostDto } from "./dto/create-post.dto";
 import { UpdatePostDto } from "./dto/update-post.dto";
 import { PostsService } from "./posts.service";

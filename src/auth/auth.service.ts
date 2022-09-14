@@ -4,14 +4,16 @@ import { Injectable, UnprocessableEntityException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { TokenExpiredError } from "jsonwebtoken";
-import { User } from "../users/entities/user.entity";
+import { User } from "../database/entities/user.entity";
 import { UsersService } from "../users/users.service";
-import { RefreshToken } from "./entities/refresh-token.entity";
+import { RefreshToken } from "../database/entities/refresh-token.entity";
+import { WalletAddressesService } from "src/walletAddresses/wallet-addresses.service";
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
+    // private walletAddressesService: WalletAddressesService,
     private jwtService: JwtService,
     @InjectRepository(RefreshToken)
     private refreshTokenRepository: EntityRepository<RefreshToken>,
@@ -102,13 +104,30 @@ export class AuthService {
     return { user, token };
   }
 
-  async register(email: string, pass: string) {
-    let user = await this.usersService.findOne({ email });
-    if (user) {
+  async register(email?: string, pass?: string, address?: string) {
+    let user: User = null;
+    if (email && pass) {
+      user = await this.usersService.findOne({ email });
+      if (user) {
+        return null;
+      }
+
+      const hashed = await bcrypt.hash(pass, 10);
+      user = await this.usersService.create({ email, password: hashed });
+    } else if (address) {
+      // const walletAddress = await this.walletAddressesService.findOneByAddress({
+      //   address,
+      // });
+      // if (walletAddress) {
       return null;
+      // }
+
+      // user = await this.usersService.create({ email: null, password: null });
+      // await this.walletAddressesService.create(user.id, { address });
+    } else {
+      throw new Error("Email, password or Address must be provided");
     }
-    const hashed = await bcrypt.hash(pass, 10);
-    user = await this.usersService.create({ email, password: hashed });
+
     return user;
   }
 }

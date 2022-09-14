@@ -5,16 +5,17 @@ import {
   OneToMany,
   Property,
 } from "@mikro-orm/core";
-import { RefreshToken } from "../../auth/entities/refresh-token.entity";
-import { BaseEntity } from "../../database/entities/base-entity.entity";
-import { Post } from "../../posts/entities/post.entity";
+import { RefreshToken } from "./refresh-token.entity";
+import { BaseEntity } from "./base-entity.entity";
+import { Post } from "./post.entity";
+import { WalletAddress } from "./wallet-address.entity";
 
 @Entity({ tableName: "users" })
 export class User extends BaseEntity {
-  @Property({ unique: true })
+  @Property({ nullable: true })
   email: string;
 
-  @Property()
+  @Property({ nullable: true })
   password: string;
 
   @Property({ nullable: true })
@@ -25,6 +26,11 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Post, (post) => post.author, { cascade: [Cascade.REMOVE] })
   posts = new Collection<Post>(this);
+
+  @OneToMany(() => WalletAddress, (walletAddress) => walletAddress.user, {
+    cascade: [Cascade.REMOVE],
+  })
+  walletAddresses = new Collection<WalletAddress>(this);
 
   @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user, {
     cascade: [Cascade.REMOVE],

@@ -54,9 +54,9 @@ type Mutation {
   createPost(input: CreatePostInput!): Post!
   updatePost(input: UpdatePostInput!): Post!
   deletePost(id: Int!): Boolean!
-  login(input: LoginUserInput!): LoginUserPayload!
+  loginEmail(input: LoginUserWithEmailInput!): LoginUserPayload!
   refreshToken(input: RefreshTokenInput!): RefreshTokenPayload!
-  register(input: RegisterUserInput!): RegisterUserPayload!
+  registerEmail(input: RegisterUserWithEmailInput!): RegisterUserPayload!
 }
 
 input UpdateProfileInput {
@@ -76,7 +76,7 @@ input UpdatePostInput {
   body: String
 }
 
-input LoginUserInput {
+input LoginUserWithEmailInput {
   email: String!
   password: String!
 }
@@ -85,7 +85,7 @@ input RefreshTokenInput {
   refreshToken: String!
 }
 
-input RegisterUserInput {
+input RegisterUserWithEmailInput {
   email: String!
   password: String!
 }

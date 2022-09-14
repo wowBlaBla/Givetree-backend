@@ -4,7 +4,7 @@ import { Injectable } from "@nestjs/common";
 import { CreatePostDto } from "./dto/create-post.dto";
 import { CreatePostInput } from "./dto/create-post.input";
 import { UpdatePostDto } from "./dto/update-post.dto";
-import { Post } from "./entities/post.entity";
+import { Post } from "../database/entities/post.entity";
 
 interface FindAllArgs {
   relations?: string[];
