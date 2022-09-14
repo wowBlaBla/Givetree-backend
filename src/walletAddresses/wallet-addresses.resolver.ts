@@ -78,12 +78,12 @@ export class WalletAddressesResolver {
   }
 
   @ResolveField(() => UserObject)
-  async author(@Parent() walletAddress: WalletAddress) {
+  async user(@Parent() walletAddress: WalletAddress) {
     if (walletAddress.user) {
       return walletAddress.user;
     }
     return await this.usersService.findOne({
-      walletAddressId: walletAddress.id,
+      walletAddress: walletAddress.address,
     });
   }
 }

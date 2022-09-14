@@ -31,7 +31,7 @@ export class WalletAddressesService {
     createWalletAddressInput: CreateWalletAddressDto | CreateWalletAddressInput,
   ) {
     const walletAddress = this.walletAddressesRepository.create({
-      author: {
+      user: {
         id: userId,
       },
       ...createWalletAddressInput,

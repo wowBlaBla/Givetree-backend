@@ -4,7 +4,7 @@
 
 type User {
   id: Int!
-  email: String!
+  email: String
   firstName: String
   lastName: String
   posts: [Post!]!
@@ -23,6 +23,14 @@ type Post {
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+type WalletAddress {
+  id: Int!
+  address: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  user: User!
+}
 
 type LoginUserPayload {
   user: User!
@@ -47,6 +55,8 @@ type Query {
   me: User!
   posts: [Post!]!
   post(id: Int!): Post!
+  walletAddresses: [WalletAddress!]!
+  walletAddress(id: Int!): WalletAddress!
 }
 
 type Mutation {
@@ -54,9 +64,13 @@ type Mutation {
   createPost(input: CreatePostInput!): Post!
   updatePost(input: UpdatePostInput!): Post!
   deletePost(id: Int!): Boolean!
+  updateWalletAddress(input: UpdateWalletAddressInput!): WalletAddress!
+  deleteWalletAddress(id: Int!): Boolean!
   loginEmail(input: LoginUserWithEmailInput!): LoginUserPayload!
+  loginWallet(input: LoginUserWithWalletInput!): LoginUserPayload!
   refreshToken(input: RefreshTokenInput!): RefreshTokenPayload!
   registerEmail(input: RegisterUserWithEmailInput!): RegisterUserPayload!
+  registerWallet(input: RegisterUserWithWalletInput!): RegisterUserPayload!
 }
 
 input UpdateProfileInput {
@@ -76,9 +90,18 @@ input UpdatePostInput {
   body: String
 }
 
+input UpdateWalletAddressInput {
+  id: Int!
+  address: String
+}
+
 input LoginUserWithEmailInput {
   email: String!
   password: String!
+}
+
+input LoginUserWithWalletInput {
+  address: String!
 }
 
 input RefreshTokenInput {
@@ -88,4 +111,8 @@ input RefreshTokenInput {
 input RegisterUserWithEmailInput {
   email: String!
   password: String!
+}
+
+input RegisterUserWithWalletInput {
+  address: String!
 }

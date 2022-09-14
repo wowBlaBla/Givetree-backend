@@ -1,11 +1,17 @@
 import { Args, Mutation, Resolver } from "@nestjs/graphql";
 import { UserInputError } from "apollo-server-express";
 import { AuthService } from "./auth.service";
-import { LoginUserWithEmailInput } from "./dto/login-user.input";
+import {
+  LoginUserWithEmailInput,
+  LoginUserWithWalletInput,
+} from "./dto/login-user.input";
 import { LoginUserPayload } from "./dto/login-user.payload";
 import { RefreshTokenInput } from "./dto/refresh-token.input";
 import { RefreshTokenPayload } from "./dto/refresh-token.payload";
-import { RegisterUserWithEmailInput } from "./dto/register-user.input";
+import {
+  RegisterUserWithEmailInput,
+  RegisterUserWithWalletInput,
+} from "./dto/register-user.input";
 import { RegisterUserPayload } from "./dto/register-user.payload";
 
 @Resolver()
@@ -14,13 +20,35 @@ export class AuthResolver {
 
   @Mutation(() => LoginUserPayload)
   async loginEmail(@Args("input") input: LoginUserWithEmailInput) {
-    const user = await this.authService.validateUser(
+    const user = await this.authService.validateUserWithEmail(
       input.email,
       input.password,
     );
 
     if (!user) {
       return new UserInputError("Email or password incorrect.");
+    }
+
+    const accessToken = await this.authService.generateAccessToken(user);
+    const refreshToken = await this.authService.generateRefreshToken(
+      user,
+      60 * 60 * 24 * 30,
+    );
+
+    const payload = new LoginUserPayload();
+    payload.user = user;
+    payload.accessToken = accessToken;
+    payload.refreshToken = refreshToken;
+
+    return payload;
+  }
+
+  @Mutation(() => LoginUserPayload)
+  async loginWallet(@Args("input") input: LoginUserWithWalletInput) {
+    const user = await this.authService.validateUserWithWallet(input.address);
+
+    if (!user) {
+      return new UserInputError("Wallet address incorrect.");
     }
 
     const accessToken = await this.authService.generateAccessToken(user);
@@ -55,10 +83,37 @@ export class AuthResolver {
 
   @Mutation(() => RegisterUserPayload)
   async registerEmail(@Args("input") input: RegisterUserWithEmailInput) {
-    const user = await this.authService.register(input.email, input.password);
+    const user = await this.authService.registerWithEmail(
+      input.email,
+      input.password,
+    );
 
     if (!user) {
       return new UserInputError(`User by email ${input.email} already exists.`);
+    }
+
+    const accessToken = await this.authService.generateAccessToken(user);
+    const refreshToken = await this.authService.generateRefreshToken(
+      user,
+      60 * 60 * 24 * 30,
+    );
+
+    const payload = new RegisterUserPayload();
+    payload.user = user;
+    payload.accessToken = accessToken;
+    payload.refreshToken = refreshToken;
+
+    return payload;
+  }
+
+  @Mutation(() => RegisterUserPayload)
+  async registerWallet(@Args("input") input: RegisterUserWithWalletInput) {
+    const user = await this.authService.registerWithWallet(input.address);
+
+    if (!user) {
+      return new UserInputError(
+        `User by wallet address ${input.address} already exists.`,
+      );
     }
 
     const accessToken = await this.authService.generateAccessToken(user);

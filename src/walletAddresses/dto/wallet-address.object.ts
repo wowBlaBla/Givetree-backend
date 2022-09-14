@@ -1,6 +1,6 @@
 import { Field, Int, ObjectType } from "@nestjs/graphql";
 
-@ObjectType("Post")
+@ObjectType("WalletAddress")
 export class WalletAddressObject {
   @Field(() => Int)
   readonly id: number;

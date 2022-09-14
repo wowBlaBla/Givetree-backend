@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 import { UsersModule } from "../users/users.module";
+import { WalletAddressesModule } from "src/walletAddresses/wallet-addresses.module";
 import { AuthController } from "./auth.controller";
 import { AuthResolver } from "./auth.resolver";
 import { AuthService } from "./auth.service";
@@ -24,6 +25,7 @@ import { LocalStrategy } from "./strategies/local.strategy";
       inject: [ConfigService],
     }),
     UsersModule,
+    WalletAddressesModule,
     MikroOrmModule.forFeature([RefreshToken]),
   ],
   providers: [AuthService, AuthResolver, LocalStrategy, JwtStrategy],

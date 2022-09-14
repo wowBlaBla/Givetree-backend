@@ -1,4 +1,11 @@
-import { Body, Controller, Post, Request, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Post,
+  Request,
+  UseGuards,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { ApiBody, ApiCreatedResponse, ApiOkResponse } from "@nestjs/swagger";
 import { UserDto } from "../users/dto/user.dto";
 import { AuthService } from "./auth.service";
@@ -65,10 +72,16 @@ export class AuthController {
     type: RegisterUserResponse,
   })
   async registerWithEmail(@Body() registerInput: RegisterUserWithEmailBody) {
-    const user = await this.authService.register(
+    const user = await this.authService.registerWithEmail(
       registerInput.email,
       registerInput.password,
     );
+
+    if (!user) {
+      throw new UnauthorizedException(
+        `User by email ${registerInput.email} already exists.`,
+      );
+    }
 
     const accessToken = await this.authService.generateAccessToken(user);
     const refreshToken = await this.authService.generateRefreshToken(
@@ -90,7 +103,15 @@ export class AuthController {
     type: RegisterUserResponse,
   })
   async registerWithWallet(@Body() registerInput: RegisterUserWithWalletBody) {
-    const user = await this.authService.register(registerInput.address);
+    const user = await this.authService.registerWithWallet(
+      registerInput.address,
+    );
+
+    if (!user) {
+      throw new UnauthorizedException(
+        `User by wallet address ${registerInput.address} already exists.`,
+      );
+    }
 
     const accessToken = await this.authService.generateAccessToken(user);
     const refreshToken = await this.authService.generateRefreshToken(

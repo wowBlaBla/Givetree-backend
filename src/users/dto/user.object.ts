@@ -5,7 +5,7 @@ export class UserObject {
   @Field(() => Int)
   readonly id: number;
 
-  @Field()
+  @Field({ nullable: true })
   readonly email: string;
 
   @Field({ nullable: true })

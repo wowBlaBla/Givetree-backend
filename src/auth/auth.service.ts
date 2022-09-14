@@ -13,13 +13,13 @@ import { WalletAddressesService } from "src/walletAddresses/wallet-addresses.ser
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    // private walletAddressesService: WalletAddressesService,
+    private walletAddressesService: WalletAddressesService,
     private jwtService: JwtService,
     @InjectRepository(RefreshToken)
     private refreshTokenRepository: EntityRepository<RefreshToken>,
   ) {}
 
-  async validateUser(email: string, pass: string) {
+  async validateUserWithEmail(email: string, pass: string) {
     const user = await this.usersService.findOne({ email });
     if (user) {
       const { password, ...result } = user;
@@ -27,6 +27,17 @@ export class AuthService {
       if (match) {
         return result;
       }
+    }
+    return null;
+  }
+
+  async validateUserWithWallet(address: string) {
+    const user = await this.usersService.findOne({
+      walletAddress: address,
+    });
+    if (user) {
+      const { password, ...result } = user;
+      return result;
     }
     return null;
   }
@@ -104,29 +115,31 @@ export class AuthService {
     return { user, token };
   }
 
-  async register(email?: string, pass?: string, address?: string) {
-    let user: User = null;
-    if (email && pass) {
-      user = await this.usersService.findOne({ email });
-      if (user) {
-        return null;
-      }
-
-      const hashed = await bcrypt.hash(pass, 10);
-      user = await this.usersService.create({ email, password: hashed });
-    } else if (address) {
-      // const walletAddress = await this.walletAddressesService.findOneByAddress({
-      //   address,
-      // });
-      // if (walletAddress) {
+  async registerWithEmail(email: string, pass: string) {
+    let user = await this.usersService.findOne({ email });
+    if (user) {
       return null;
-      // }
-
-      // user = await this.usersService.create({ email: null, password: null });
-      // await this.walletAddressesService.create(user.id, { address });
-    } else {
-      throw new Error("Email, password or Address must be provided");
     }
+
+    const hashed = await bcrypt.hash(pass, 10);
+    user = await this.usersService.create({ email, password: hashed });
+
+    return user;
+  }
+
+  async registerWithWallet(address: string) {
+    const walletAddress = await this.usersService.findOne({
+      walletAddress: address,
+    });
+    if (walletAddress) {
+      return null;
+    }
+
+    const user = await this.usersService.create({
+      email: null,
+      password: null,
+    });
+    await this.walletAddressesService.create(user.id, { address });
 
     return user;
   }

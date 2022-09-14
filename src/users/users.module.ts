@@ -11,7 +11,7 @@ import { UsersService } from "./users.service";
   imports: [
     MikroOrmModule.forFeature([User]),
     forwardRef(() => PostsModule),
-    // forwardRef(() => WalletAddressesModule),
+    forwardRef(() => WalletAddressesModule),
   ],
   controllers: [UsersController],
   providers: [UsersResolver, UsersService],
