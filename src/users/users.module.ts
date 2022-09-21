@@ -6,6 +6,7 @@ import { User } from "../database/entities/user.entity";
 import { UsersController } from "./users.controller";
 import { UsersResolver } from "./users.resolver";
 import { UsersService } from "./users.service";
+import { S3Service } from "src/services/s3.service";
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { UsersService } from "./users.service";
     forwardRef(() => WalletAddressesModule),
   ],
   controllers: [UsersController],
-  providers: [UsersResolver, UsersService],
+  providers: [UsersResolver, UsersService, S3Service],
   exports: [UsersService],
 })
 export class UsersModule {}
