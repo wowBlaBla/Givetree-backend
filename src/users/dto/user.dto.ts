@@ -1,11 +1,21 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude, Expose } from "class-transformer";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { User } from "../../database/entities/user.entity";
+import { AccountType, User } from "../../database/entities/user.entity";
 
 @Exclude()
 export class UserDto {
-  constructor(partial: Pick<User, "id" | "email" | "firstName" | "lastName">) {
+  constructor(
+    partial: Pick<
+      User,
+      | "id"
+      | "email"
+      | "userName"
+      | "type"
+      | "bio"
+      | "profileImage"
+      | "bannerImage"
+    >,
+  ) {
     Object.assign(this, partial);
   }
 
@@ -19,9 +29,21 @@ export class UserDto {
 
   @Expose()
   @ApiProperty()
-  readonly firstName: string;
+  readonly userName: string;
 
   @Expose()
   @ApiProperty()
-  readonly lastName: string;
+  readonly type: AccountType;
+
+  @Expose()
+  @ApiProperty()
+  readonly bio: string;
+
+  @Expose()
+  @ApiProperty()
+  readonly profileImage: string;
+
+  @Expose()
+  @ApiProperty()
+  readonly bannerImage: string;
 }
