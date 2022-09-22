@@ -80,30 +80,30 @@ export class UsersController {
     },
   ) {
     const { profile, banner } = files;
+
+    const updateImage = new UpdateProfileDto();
+
     if (profile) {
       const result = await this.s3Service.uploadFile(
         profile[0],
         `profile-${user.id}`,
-        "user",
+        "public",
       );
 
-      const updateImage = new UpdateProfileDto();
       updateImage.profileImage = result.Location;
-      const res = await this.usersService.update(user.id, updateImage);
-      return res && new UserDto(res);
     }
 
     if (banner) {
       const result = await this.s3Service.uploadFile(
         banner[0],
         `banner-${user.id}`,
-        "user",
+        "public",
       );
-      const updateImage = new UpdateProfileDto();
-      updateImage.profileImage = result.Location;
-      const res = await this.usersService.update(user.id, updateImage);
-      return res && new UserDto(res);
+      updateImage.bannerImage = result.Location;
     }
+
+    const res = await this.usersService.update(user.id, updateImage);
+    return res && new UserDto(res);
   }
 
   @UseGuards(JwtAuthGuard)

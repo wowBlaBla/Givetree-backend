@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import * as AWS from "aws-sdk";
+import * as path from "path";
 
 @Injectable()
 export class S3Service {
@@ -14,8 +15,13 @@ export class S3Service {
 
   async uploadFile(file: Express.Multer.File, id: string, dir?: string) {
     const { buffer, mimetype, originalname } = file;
+    const now = new Date().getTime();
 
-    const key = dir ? String(`${dir}/${id}`) : String(id) + "-" + originalname;
+    const extension = path.extname(originalname);
+    const key = `${
+      dir ? String(`${dir}/${id}`) : String(id)
+    }-${now}${extension}`;
+
     const params: AWS.S3.PutObjectRequest = {
       Bucket: process.env.AWS_S3_BUCKET,
       Key: key,
@@ -26,8 +32,12 @@ export class S3Service {
 
     try {
       const s3Response = await this.s3.upload(params).promise();
+      const filename = path.basename(s3Response.Location);
 
-      return s3Response;
+      return {
+        ...s3Response,
+        Location: `https://cdn.tst.givetree.xyz/${filename}`,
+      };
     } catch (e) {
       console.log(e);
     }
