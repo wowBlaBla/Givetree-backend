@@ -5,8 +5,11 @@
 type User {
   id: Int!
   email: String
-  firstName: String
-  lastName: String
+  userName: String
+  type: String!
+  bio: String
+  profileImage: String
+  bannerImage: String
   posts: [Post!]!
 }
 
@@ -75,8 +78,11 @@ type Mutation {
 
 input UpdateProfileInput {
   email: String
-  firstName: String
-  lastName: String
+  userName: String
+  type: String
+  bio: String
+  profileImage: String
+  bannerImage: String
 }
 
 input CreatePostInput {
