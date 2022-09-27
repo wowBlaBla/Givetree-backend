@@ -67,12 +67,10 @@ export class AuthResolver {
 
   @Mutation(() => RefreshTokenPayload)
   async refreshToken(@Args("input") input: RefreshTokenInput) {
-    const {
-      user,
-      token,
-    } = await this.authService.createAccessTokenFromRefreshToken(
-      input.refreshToken,
-    );
+    const { user, token } =
+      await this.authService.createAccessTokenFromRefreshToken(
+        input.refreshToken,
+      );
 
     const payload = new RefreshTokenPayload();
     payload.user = user;
@@ -85,6 +83,7 @@ export class AuthResolver {
   async registerEmail(@Args("input") input: RegisterUserWithEmailInput) {
     const user = await this.authService.registerWithEmail(
       input.email,
+      input.userName,
       input.password,
     );
 

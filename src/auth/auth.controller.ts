@@ -83,12 +83,10 @@ export class AuthController {
     type: RefreshTokenResponse,
   })
   async refresh(@Body() refreshInput: RefreshTokenBody) {
-    const {
-      user,
-      token,
-    } = await this.authService.createAccessTokenFromRefreshToken(
-      refreshInput.refreshToken,
-    );
+    const { user, token } =
+      await this.authService.createAccessTokenFromRefreshToken(
+        refreshInput.refreshToken,
+      );
 
     const payload = new RefreshTokenResponse();
     payload.user = new UserDto(user);
@@ -106,11 +104,12 @@ export class AuthController {
     const user = await this.authService.registerWithEmail(
       registerInput.email,
       registerInput.password,
+      registerInput.username,
     );
 
     if (!user) {
       throw new UnauthorizedException(
-        `User by email ${registerInput.email} already exists.`,
+        `User by email or username already exists.`,
       );
     }
 
