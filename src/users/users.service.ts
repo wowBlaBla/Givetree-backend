@@ -69,6 +69,41 @@ export class UsersService {
     }
   }
 
+  async findEither(
+    id: number,
+    { email, userName, walletAddress, relations }: FindOneArgs,
+  ) {
+    const condition = { $or: [] };
+    let user: User;
+
+    if (email || userName || walletAddress) {
+      if (email) {
+        condition["$or"].push({
+          [expr("lower(email)")]: email.toLowerCase(),
+        });
+      }
+      if (userName) {
+        condition["$or"].push({
+          [expr("lower(user_name)")]: userName.toLowerCase(),
+        });
+      }
+      if (walletAddress) {
+        condition["$or"].push({
+          walletAddresses: { address: walletAddress },
+        });
+      }
+      const res = await this.usersRepository.find(
+        {
+          $and: [{ id: { $ne: id } }, condition],
+        },
+        relations,
+      );
+      user = res[0];
+    }
+
+    return user;
+  }
+
   async update(
     id: number,
     updateUserInput: UpdateProfileInput | UpdateProfileDto,
