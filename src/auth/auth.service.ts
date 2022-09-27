@@ -116,14 +116,23 @@ export class AuthService {
     return { user, token };
   }
 
-  async registerWithEmail(email: string, pass: string) {
+  async registerWithEmail(email: string, userName: string, pass: string) {
     let user = await this.usersService.findOne({ email });
     if (user) {
       return null;
     }
 
+    user = await this.usersService.findOne({ userName });
+    if (user) {
+      return null;
+    }
+
     const hashed = await bcrypt.hash(pass, 10);
-    user = await this.usersService.create({ email, password: hashed });
+    user = await this.usersService.create({
+      email,
+      userName,
+      password: hashed,
+    });
 
     return user;
   }

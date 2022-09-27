@@ -12,6 +12,7 @@ interface FindAllArgs {
 interface FindOneArgs extends FindAllArgs {
   id?: number;
   email?: string;
+  userName?: string;
   walletAddress?: string;
   postId?: number;
 }
@@ -34,12 +35,24 @@ export class UsersService {
     return this.usersRepository.find({}, relations);
   }
 
-  findOne({ id, email, walletAddress, postId, relations }: FindOneArgs) {
+  findOne({
+    id,
+    email,
+    userName,
+    walletAddress,
+    postId,
+    relations,
+  }: FindOneArgs) {
     if (id) {
       return this.usersRepository.findOne(id, relations);
     } else if (email) {
       return this.usersRepository.findOne(
         { [expr("lower(email)")]: email.toLowerCase() },
+        relations,
+      );
+    } else if (userName) {
+      return this.usersRepository.findOne(
+        { [expr("lower(user_name)")]: userName.toLowerCase() },
         relations,
       );
     } else if (walletAddress) {
