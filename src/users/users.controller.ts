@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Put,
+  UnauthorizedException,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -43,6 +44,10 @@ export class UsersController {
     @CurrentUser() user: User,
     @Body() updateUserDto: UpdateProfileDto,
   ) {
+    const result = await this.usersService.findEither(user.id, updateUserDto);
+    if (result) {
+      throw new UnauthorizedException(`User already exists.`);
+    }
     const res = await this.usersService.update(user.id, updateUserDto);
     return res && new UserDto(res);
   }

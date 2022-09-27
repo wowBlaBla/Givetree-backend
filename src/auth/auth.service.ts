@@ -75,7 +75,6 @@ export class AuthService {
   async resolveRefreshToken(encoded: string) {
     try {
       const payload = await this.jwtService.verify(encoded);
-
       if (!payload.sub || !payload.jwtId) {
         throw new UnprocessableEntityException("Refresh token malformed");
       }
@@ -88,11 +87,11 @@ export class AuthService {
         throw new UnprocessableEntityException("Refresh token not found");
       }
 
-      if (token.revoked) {
+      if (+token.revoked) {
         throw new UnprocessableEntityException("Refresh token revoked");
       }
 
-      const user = await this.usersService.findOne({ id: payload.subject });
+      const user = await this.usersService.findOne({ id: token.user.id });
 
       if (!user) {
         throw new UnprocessableEntityException("Refresh token malformed");
