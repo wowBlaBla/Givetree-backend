@@ -103,8 +103,8 @@ export class AuthController {
   async registerWithEmail(@Body() registerInput: RegisterUserWithEmailBody) {
     const user = await this.authService.registerWithEmail(
       registerInput.email,
-      registerInput.password,
       registerInput.username,
+      registerInput.password,
     );
 
     if (!user) {
