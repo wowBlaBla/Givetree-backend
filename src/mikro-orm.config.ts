@@ -8,10 +8,10 @@ const configService = new ConfigService( { envFilePath: '.env' });
 const config = {
   type: configService.get<string>('DB_TYPE') || "mariadb",
   host: configService.get<string>('DB_HOST') || 'localhost',
-  port: configService.get<number>('DB_PORT')|| 3306,
+  port: configService.get<number>('DB_PORT')|| 3360,
   user: configService.get<string>('DB_USER') || "root",
-  password: configService.get<string>('DB_PASSWORD') || "",
-  dbName: configService.get<string>('DB_NAME') || "",
+  password: configService.get<string>('DB_PASSWORD') || "mariadb",
+  dbName: configService.get<string>('DB_NAME') || "mariadb",
   entities: ["./dist/**/*.entity.js"],
   entitiesTs: ["./src/**/*.entity.ts"],
   debug: true,

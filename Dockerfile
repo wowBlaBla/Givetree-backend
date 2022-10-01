@@ -1,4 +1,4 @@
-FROM node:16.17-bullseye-slim
+FROM node:16.17-alpine3.15 AS build-env
 
 WORKDIR /usr/src/app
 
@@ -13,4 +13,27 @@ COPY .env.example ./.env
 
 RUN yarn build
 
+# Build runtime image
+FROM node:16.17-alpine3.15
+
+# Hard-bake full commit sha into container env
+ARG COMMIT_SHA
+ENV APP_COMMIT_SHA=${COMMIT_SHA}
+
+# Hard-bake short commit sha into container env
+ARG COMMIT_SHA_SHORT
+ENV APP_COMMIT_SHA_SHORT=${COMMIT_SHA_SHORT}
+
+WORKDIR /usr/src/app
+
+COPY --from=build-env /usr/src/app/.env /usr/src/app/.env
+
+COPY --from=build-env /usr/src/app/package.json /usr/src/app/package.json
+COPY --from=build-env /usr/src/app/yarn.lock /usr/src/app/yarn.lock
+
+COPY --from=build-env /usr/src/app/dist /usr/src/app/dist
+COPY --from=build-env /usr/src/app/dist /usr/src/app/dist
+COPY --from=build-env /usr/src/app/node_modules /usr/src/app/node_modules
+
 CMD ["node", "dist/main.js"]
+

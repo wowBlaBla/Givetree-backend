@@ -1213,7 +1213,7 @@
     semver "^7.3.4"
     tar "^6.1.0"
 
-"@mikro-orm/cli@^4.4.4":
+"@mikro-orm/cli@4.4.4":
   version "4.4.4"
   resolved "https://registry.yarnpkg.com/@mikro-orm/cli/-/cli-4.4.4.tgz#bb09a134f71741ff43789bae5096ac0f6cce2ecf"
   integrity sha512-7DLxmZoNh5syuDlkG1QNrWN6nw5/Vy69hFXigK3+9KJt1sGpKYV3V7GWvlocvvED1FoWDZKaXNzwg2Cc1t7bBw==
