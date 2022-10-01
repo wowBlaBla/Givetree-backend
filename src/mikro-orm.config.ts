@@ -11,7 +11,7 @@ const config = {
   port: configService.get<number>('DB_PORT')|| 3306,
   user: configService.get<string>('DB_USER') || "root",
   password: configService.get<string>('DB_PASSWORD') || "",
-  dbName: configService.get<string>('DB_PASSWORD') || "",
+  dbName: configService.get<string>('DB_NAME') || "",
   entities: ["./dist/**/*.entity.js"],
   entitiesTs: ["./src/**/*.entity.ts"],
   debug: true,

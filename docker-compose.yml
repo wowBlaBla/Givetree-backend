@@ -1,6 +1,26 @@
 version: '3.4'
 
 services:
+  app:
+    image: gtapiimagev2
+    environment:
+      MARIADB_PASSWORD: mariadb
+      MARIADB_USER: mariadb
+      MARIADB_ROOT_PASSWORD: mariadb 
+      MARIADB_DATABASE: mariadb
+      JWT_KEY: secret_jwt_key
+      APP_ENV: dev
+      APP_SERVER_PORT: 3000
+      DB_TYPE: mariadb
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: mariadb
+      DB_PASSWORD: mariadb
+    ports:
+      - 3008:3000
+    networks:
+      - dev
+
   db:
     image: mariadb:10.4.26-focal
     environment:
