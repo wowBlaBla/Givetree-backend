@@ -1,20 +1,27 @@
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
+import { ConfigService } from "@nestjs/config";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix("api");
 
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('APP_SERVER_PORT') || 3000;
+  const app_env = configService.get<string>('APP_ENV') || "dev";
+
   const config = new DocumentBuilder()
-    .setTitle("Recog")
-    .setDescription("API for the Recog Swiss school forum.")
+    .setTitle("GiveTree API")
+    .setDescription("API for the GiveTree.")
     .setVersion("1.0")
-    .addTag("forum")
+    .addTag("givetree")
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("api", app, document);
+  configService.get<string>("auth.jwtKey"),
 
-  await app.listen(3000);
+  app_env != "prod" ? SwaggerModule.setup("api", app, app_env != "prod" ? document : null) : null;
+
+  await app.listen(port);
 }
 bootstrap();

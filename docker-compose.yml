@@ -1,0 +1,18 @@
+version: '3.4'
+
+services:
+  db:
+    image: mariadb:10.4.26-focal
+    environment:
+      MARIADB_PASSWORD: mariadb
+      MARIADB_USER: mariadb
+      MARIADB_ROOT_PASSWORD: mariadb 
+      MARIADB_DATABASE: mariadb
+    ports:
+      - 3360:3306
+    networks:
+      - dev
+
+networks:
+  dev:
+
