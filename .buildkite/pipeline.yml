@@ -7,22 +7,22 @@ env:
 steps:
   - label: ":package: Build GiveTree Backend Project"
     command:
-      - "apt update"
-      - "apt install -y git"
-      - "yarn add -W sharp"
-      - "yarn install"
-      - "cd apps/platform"
-      - "yarn export"
+      - ./.buildkite/scriptsrun_build.sh
     env:
       AWS_ASSUME_ROLE_ARN: ${DEPLOY_TEST_ROLE_ARN}
     plugins:
       - cultureamp/aws-assume-role#v0.1.0
-      - seek-oss/docker-ecr-publish#v2.4.0:
-          dockerfile: Dockerfile
-          account_id: "576424575048"
-          region: "ap-southeast-2"
-          ecr-name: gtbackend
-          tags: branch-$BUILDKITE_BUILD_NUMBER
+      # - docker#v5.2.0:
+      #     image: "docker:latest"
+      #     always-pull: true
+      #     volumes:
+      #       - "/var/run/docker.sock:/var/run/docker.sock"
+    #   - seek-oss/docker-ecr-publish#v2.4.0:
+    #       dockerfile: Dockerfile
+    #       account_id: "576424575048"
+    #       region: "ap-southeast-2"
+    #       ecr-name: gtbackend
+    #       tags : branch-$BUILDKITE_BUILD_NUMBER
   
   # - wait  
   
