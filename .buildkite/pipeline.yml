@@ -1,8 +1,5 @@
 env:
-  S3_TEST_BUCKET_NAME: "gt-frontend-9b6q4ua7"
-  S3_STAGE_BUCKET_NAME: ""
-  S3_PROD_BUCKET_NAME: ""
-  DEPLOY_TEST_ROLE_ARN: "arn:aws:iam::576424575048:role/DevOpsDeployRole"
+  DEPLOY_TEST_ROLE_ARN: "arn:aws:iam::576424575048:role/DevOpsToolingAppDeployRole"
   DEPLOY_STAGE_ROLE_ARN: ""
   DEPLOY_PROD_ROLE_ARN: ""
 
@@ -16,78 +13,83 @@ steps:
       - "yarn install"
       - "cd apps/platform"
       - "yarn export"
-    plugins:
-      - docker#v4.0.0:
-          image: "node:18.9-slim"
-          always-pull: false
-    artifact_paths: "apps/platform/out/**"
-  
-  - wait  
-  
-  - label: ":rocket: Deploy Feature"
-    command:
-      - "cd apps/platform/out"
-      - "ls"
-      - "export BRANCH_SLUG=$(echo '$BUILDKITE_BRANCH' | iconv -c -t ascii//TRANSLIT | sed -E 's/[~^]+//g' | sed -E 's/[^a-zA-Z0-9]+/-/g' | sed -E 's/^-+|-+$//g' | tr A-Z a-z)"
-      - "aws s3 sync . s3://${S3_TEST_BUCKET_NAME}/preview/$${BRANCH_SLUG}"
-    if: "build.branch != 'master'"
     env:
       AWS_ASSUME_ROLE_ARN: ${DEPLOY_TEST_ROLE_ARN}
     plugins:
-      - artifacts#v1.5.0:
-          download: "apps/platform/out/**"
-      - cultureamp/aws-assume-role
+      - cultureamp/aws-assume-role#v0.1.0
+      - seek-oss/docker-ecr-publish#v2.4.0:
+          dockerfile: Dockerfile
+          account_id: "576424575048"
+          region: "ap-southeast-2"
+          ecr-name: gtbackend
+          tags: branch-$BUILDKITE_BUILD_NUMBER
   
-  - label: ":rocket: Deploy Master to Test"
-    command:
-      - "cd apps/platform/out"
-      - "ls"
-      - "aws s3 sync . s3://${S3_TEST_BUCKET_NAME}/release --delete"
-    if: "build.branch == 'master'"
-    env:
-      AWS_ASSUME_ROLE_ARN: ${DEPLOY_TEST_ROLE_ARN}
-    plugins:
-      - artifacts#v1.5.0:
-          download: "apps/platform/out/**"
-      - cultureamp/aws-assume-role
-
-  - wait  
-
-  - block: ":rocket: Deploy To Staging"
-    branches: "master"
-
-  - label: ":rocket: Deploy Master to Stage"
-    command:
-      - "Deploying to Staging..."
-      # - "cd apps/platform/out"
-      # - "ls"
-      # - "aws s3 sync . s3://${S3_STAGE_BUCKET_NAME}/release --delete"
-    if: "build.branch == 'master'"
-    env:
-      # AWS_ASSUME_ROLE_ARN: ${DEPLOY_STAGE_ROLE_ARN}
-      AWS_ASSUME_ROLE_ARN: ${DEPLOY_TEST_ROLE_ARN}
-    plugins:
-      - artifacts#v1.5.0:
-          download: "apps/platform/out/**"
-      - cultureamp/aws-assume-role
+  # - wait  
   
-  - wait  
+  # - label: ":rocket: Deploy ECR"
+  #   command:
+  #     - "cd apps/platform/out"
+  #     - "ls"
+  #     - "export BRANCH_SLUG=$(echo '$BUILDKITE_BRANCH' | iconv -c -t ascii//TRANSLIT | sed -E 's/[~^]+//g' | sed -E 's/[^a-zA-Z0-9]+/-/g' | sed -E 's/^-+|-+$//g' | tr A-Z a-z)"
+  #     - "aws s3 sync . s3://${S3_TEST_BUCKET_NAME}/preview/$${BRANCH_SLUG}"
+  #   if: "build.branch != 'master'"
+  #   env:
+  #     AWS_ASSUME_ROLE_ARN: ${DEPLOY_TEST_ROLE_ARN}
+  #   plugins:
+  #     - artifacts#v1.5.0:
+  #         download: "apps/platform/out/**"
+  #     - cultureamp/aws-assume-role
+  
+  # - label: ":rocket: Deploy Master to Test"
+  #   command:
+  #     - "cd apps/platform/out"
+  #     - "ls"
+  #     - "aws s3 sync . s3://${S3_TEST_BUCKET_NAME}/release --delete"
+  #   if: "build.branch == 'master'"
+  #   env:
+  #     AWS_ASSUME_ROLE_ARN: ${DEPLOY_TEST_ROLE_ARN}
+  #   plugins:
+  #     - artifacts#v1.5.0:
+  #         download: "apps/platform/out/**"
+  #     - cultureamp/aws-assume-role
 
-  - block: ":rocket: Deploy To Production"
-    branches: "master"
+  # - wait  
 
-  - label: ":rocket: Deploy Master to Production"
-    command:
-      - "Deploying to Production..."
-      # - "cd apps/platform/out"
-      # - "ls"
-      # - "aws s3 sync . s3://${S3_PROD_BUCKET_NAME}/release --delete"
-    if: "build.branch == 'master'"
-    env:
-      # AWS_ASSUME_ROLE_ARN: ${DEPLOY_PROD_ROLE_ARN}
-      AWS_ASSUME_ROLE_ARN: ${DEPLOY_TEST_ROLE_ARN}
-    plugins:
-      - artifacts#v1.5.0:
-          download: "apps/platform/out/**"
-      - cultureamp/aws-assume-role
+  # - block: ":rocket: Deploy To Staging"
+  #   branches: "master"
+
+  # - label: ":rocket: Deploy Master to Stage"
+  #   command:
+  #     - "Deploying to Staging..."
+  #     # - "cd apps/platform/out"
+  #     # - "ls"
+  #     # - "aws s3 sync . s3://${S3_STAGE_BUCKET_NAME}/release --delete"
+  #   if: "build.branch == 'master'"
+  #   env:
+  #     # AWS_ASSUME_ROLE_ARN: ${DEPLOY_STAGE_ROLE_ARN}
+  #     AWS_ASSUME_ROLE_ARN: ${DEPLOY_TEST_ROLE_ARN}
+  #   plugins:
+  #     - artifacts#v1.5.0:
+  #         download: "apps/platform/out/**"
+  #     - cultureamp/aws-assume-role
+  
+  # - wait  
+
+  # - block: ":rocket: Deploy To Production"
+  #   branches: "master"
+
+  # - label: ":rocket: Deploy Master to Production"
+  #   command:
+  #     - "Deploying to Production..."
+  #     # - "cd apps/platform/out"
+  #     # - "ls"
+  #     # - "aws s3 sync . s3://${S3_PROD_BUCKET_NAME}/release --delete"
+  #   if: "build.branch == 'master'"
+  #   env:
+  #     # AWS_ASSUME_ROLE_ARN: ${DEPLOY_PROD_ROLE_ARN}
+  #     AWS_ASSUME_ROLE_ARN: ${DEPLOY_TEST_ROLE_ARN}
+  #   plugins:
+  #     - artifacts#v1.5.0:
+  #         download: "apps/platform/out/**"
+  #     - cultureamp/aws-assume-role
   
