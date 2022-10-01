@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   app:
-    image: gtapiimagev6 
+    build: .
     environment:
       MARIADB_PASSWORD: mariadb
       MARIADB_USER: mariadb

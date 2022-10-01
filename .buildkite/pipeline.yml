@@ -2,27 +2,41 @@ env:
   DEPLOY_TEST_ROLE_ARN: "arn:aws:iam::576424575048:role/DevOpsToolingAppDeployRole"
   DEPLOY_STAGE_ROLE_ARN: ""
   DEPLOY_PROD_ROLE_ARN: ""
+  DEPLOY_TEST_ECR: "576424575048.dkr.ecr.ap-southeast-2.amazonaws.com"
+  DEPLOY_STAGE_ECR: "576424575048.dkr.ecr.ap-southeast-2.amazonaws.com"
+  DEPLOY_PROD_ECR: "576424575048.dkr.ecr.ap-southeast-2.amazonaws.com"
 
 
 steps:
-  - label: ":package: Build GiveTree Backend Project"
+  - label: ":package: Test - Build Backend Project"
     command:
-      - ./.buildkite/scriptsrun_build.sh
+      - "echo 'Running Build & Push for container"
+    env:
+      AWS_ASSUME_ROLE_ARN: ${DEPLOY_TEST_ROLE_ARN}
+    if: "build.branch != 'master'"
+    plugins:
+      - cultureamp/aws-assume-role
+      - seek-oss/docker-ecr-publish#v2.4.0:
+          dockerfile: Dockerfile
+          account_id: "576424575048"
+          region: "ap-southeast-2"
+          ecr-name: gtbackend
+          args: COMMIT_SHA=$BUILDKITE_COMMIT
+  
+  - wait  
+
+  - block: ":rocket: Deploy Branch To Test"
+    branches: "!master"
+
+  - label: ":rocket: Deploy Branch to Test"
+    command:
+      - "Deploying Branch to ECS..."
+      - "./ecs-deploy -c ecs-spot-test -n givetree-backend -i ${DEPLOY_TEST_ECR}/gtbackend:$$BUILDKITE_BUILD_NUMBER -t 240 "
+    if: "build.branch != 'master'"
     env:
       AWS_ASSUME_ROLE_ARN: ${DEPLOY_TEST_ROLE_ARN}
     plugins:
-      - cultureamp/aws-assume-role#v0.1.0
-      # - docker#v5.2.0:
-      #     image: "docker:latest"
-      #     always-pull: true
-      #     volumes:
-      #       - "/var/run/docker.sock:/var/run/docker.sock"
-    #   - seek-oss/docker-ecr-publish#v2.4.0:
-    #       dockerfile: Dockerfile
-    #       account_id: "576424575048"
-    #       region: "ap-southeast-2"
-    #       ecr-name: gtbackend
-    #       tags : branch-$BUILDKITE_BUILD_NUMBER
+      - cultureamp/aws-assume-role
   
   # - wait  
   
