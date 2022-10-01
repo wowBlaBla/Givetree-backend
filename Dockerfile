@@ -1,4 +1,4 @@
-FROM node:14.17.0
+FROM node:16.17-bullseye-slim
 
 WORKDIR /usr/src/app
 
@@ -9,7 +9,7 @@ RUN yarn install
 
 COPY . .
 
-COPY .env ./.env
+COPY .env.example ./.env
 
 RUN yarn build
 
