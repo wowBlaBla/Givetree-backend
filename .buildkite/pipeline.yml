@@ -31,14 +31,44 @@ steps:
   - label: ":rocket: Deploy Branch to Test"
     command:
       - "Deploying Branch to ECS..."
-      - "./ecs-deploy -c ecs-spot-test -n givetree-backend -i ${DEPLOY_TEST_ECR}/gtbackend:$$BUILDKITE_BUILD_NUMBER -t 240 "
+      - "./ecs-deploy -c ecs-spot-test -n givetree-backend -i ${DEPLOY_TEST_ECR}/gtbackend:$$BUILDKITE_BUILD_NUMBER -t 600 --enable-rollback"
     if: "build.branch != 'master'"
     env:
       AWS_ASSUME_ROLE_ARN: ${DEPLOY_TEST_ROLE_ARN}
     plugins:
       - cultureamp/aws-assume-role
   
-  # - wait  
+  - wait  
+
+  - block: ":rocket: Deploy Master To Staging"
+    branches: "master"
+
+  - label: ":package: Staging - Build Backend Project"
+    command:
+      - "echo 'Running Build & Push for container"
+    env:
+      AWS_ASSUME_ROLE_ARN: ${DEPLOY_STAGE_ROLE_ARN}
+    if: "build.branch == 'master'"
+    plugins:
+      - cultureamp/aws-assume-role
+      - seek-oss/docker-ecr-publish#v2.4.0:
+          dockerfile: Dockerfile
+          account_id: "576424575048"
+          region: "ap-southeast-2"
+          ecr-name: gtbackend
+          args: COMMIT_SHA=$BUILDKITE_COMMIT
+  
+  - wait  
+
+  - label: ":rocket: Deploy Master to Staging"
+    command:
+      - "Deploying Master to Staging ECS..."
+      - "./ecs-deploy -c ecs-spot-test -n givetree-backend -i ${DEPLOY_STAGE_ECR}/gtbackend:$$BUILDKITE_BUILD_NUMBER -t 600 --enable-rollback"
+    if: "build.branch == 'master'"
+    env:
+      AWS_ASSUME_ROLE_ARN: ${DEPLOY_STAGE_ROLE_ARN}
+    plugins:
+      - cultureamp/aws-assume-role
   
   # - label: ":rocket: Deploy ECR"
   #   command:
