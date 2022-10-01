@@ -8,7 +8,6 @@ COPY yarn.lock ./
 RUN yarn install
 
 COPY . .
-
 COPY .env.example ./.env
 
 RUN yarn build
@@ -30,8 +29,9 @@ COPY --from=build-env /usr/src/app/.env /usr/src/app/.env
 
 COPY --from=build-env /usr/src/app/package.json /usr/src/app/package.json
 COPY --from=build-env /usr/src/app/yarn.lock /usr/src/app/yarn.lock
+COPY --from=build-env /usr/src/app/nest-cli.json /usr/src/app/nest-cli.json
+COPY --from=build-env /usr/src/app/schema.gql /usr/src/app/schema.gql
 
-COPY --from=build-env /usr/src/app/dist /usr/src/app/dist
 COPY --from=build-env /usr/src/app/dist /usr/src/app/dist
 COPY --from=build-env /usr/src/app/node_modules /usr/src/app/node_modules
 
