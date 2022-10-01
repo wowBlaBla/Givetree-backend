@@ -9,7 +9,7 @@ RUN yarn install
 
 COPY . .
 
-COPY .env.prod ./.env
+COPY .env ./.env
 
 RUN yarn build
 
