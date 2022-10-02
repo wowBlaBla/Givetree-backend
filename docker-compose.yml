@@ -4,10 +4,6 @@ services:
   app:
     build: .
     environment:
-      MARIADB_PASSWORD: mariadb
-      MARIADB_USER: mariadb
-      MARIADB_ROOT_PASSWORD: mariadb 
-      MARIADB_DATABASE: mariadb
       JWT_KEY: secret_jwt_key
       APP_ENV: dev
       APP_SERVER_PORT: 3000
@@ -17,7 +13,7 @@ services:
       DB_USER: mariadb
       DB_PASSWORD: mariadb
     ports:
-      - 3008:3000
+      - 3010:3000
     networks:
       - dev
 
