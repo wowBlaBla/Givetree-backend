@@ -1,4 +1,4 @@
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { GraphQLModule } from "@nestjs/graphql";
 import { MikroOrmMiddleware, MikroOrmModule } from "@mikro-orm/nestjs";
 import {
