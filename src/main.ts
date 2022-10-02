@@ -27,7 +27,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   configService.get<string>("auth.jwtKey"),
 
-  app_env != "prod" ? SwaggerModule.setup("api", app, app_env != "prod" ? document : null) : null;
+  app_env == "dev" ? SwaggerModule.setup("api", app, document) : null;
 
   await app.listen(port);
 }
