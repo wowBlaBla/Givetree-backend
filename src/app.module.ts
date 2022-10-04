@@ -1,4 +1,4 @@
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { GraphQLModule } from "@nestjs/graphql";
 import { MikroOrmMiddleware, MikroOrmModule } from "@mikro-orm/nestjs";
 import {
@@ -24,6 +24,10 @@ import { UsersModule } from "./users/users.module";
     GraphQLModule.forRoot({
       installSubscriptionHandlers: true,
       autoSchemaFile: "schema.gql",
+      cors: {
+        origin: '*',
+        credentials: true,
+      }
     }),
     UsersModule,
     AuthModule,
