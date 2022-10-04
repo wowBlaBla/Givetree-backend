@@ -1,20 +1,35 @@
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
+import { ConfigService } from "@nestjs/config";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix("api");
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('APP_SERVER_PORT') || 3000;
+  const app_env = configService.get<string>('APP_ENV') || "dev";
+  const cors_frontend_origin = configService.get<string>('CORS_FRONTEND_ORIGIN') || "*";
 
+  app.enableCors({
+    origin: cors_frontend_origin,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
+    credentials: true,
+    optionsSuccessStatus: 204
+  });
+  app.setGlobalPrefix("api");
+  
   const config = new DocumentBuilder()
-    .setTitle("Recog")
-    .setDescription("API for the Recog Swiss school forum.")
+    .setTitle("GiveTree API")
+    .setDescription("API for the GiveTree.")
     .setVersion("1.0")
-    .addTag("forum")
+    .addTag("givetree")
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("api", app, document);
+  configService.get<string>("auth.jwtKey"),
 
-  await app.listen(3000);
+  app_env == "dev" ? SwaggerModule.setup("api", app, document) : null;
+
+  await app.listen(port);
 }
 bootstrap();
