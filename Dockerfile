@@ -35,6 +35,7 @@ COPY --from=build-env /usr/src/app/schema.gql /usr/src/app/schema.gql
 
 COPY --from=build-env /usr/src/app/dist /usr/src/app/dist
 COPY --from=build-env /usr/src/app/src/database/entities /usr/src/app/src/database/entities
+COPY --from=build-env /usr/src/app/src/database/migrations /usr/src/app/src/database/migrations
 COPY --from=build-env /usr/src/app/node_modules /usr/src/app/node_modules
 
 CMD ["node", "dist/main.js"]
