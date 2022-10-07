@@ -5,6 +5,9 @@ export class RegisterUserWithEmailBody {
   email: string;
 
   @ApiProperty()
+  username: string;
+
+  @ApiProperty()
   password: string;
 }
 

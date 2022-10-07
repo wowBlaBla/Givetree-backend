@@ -25,9 +25,9 @@ import { UsersModule } from "./users/users.module";
       installSubscriptionHandlers: true,
       autoSchemaFile: "schema.gql",
       cors: {
-        origin: '*',
+        origin: "*",
         credentials: true,
-      }
+      },
     }),
     UsersModule,
     AuthModule,

@@ -10,6 +10,7 @@ import {
   Resolver,
 } from "@nestjs/graphql";
 import { UserInputError } from "apollo-server-express";
+// import { GraphQLUpload, FileUpload } from "graphql-upload";
 import { PostObject } from "src/posts/dto/post.object";
 import { PostsService } from "src/posts/posts.service";
 import { GqlCurrentUser } from "../auth/decorator/gql-current-user.decorator";
@@ -18,6 +19,7 @@ import { UpdateProfileInput } from "./dto/update-profile.input";
 import { UserObject } from "./dto/user.object";
 import { User } from "../database/entities/user.entity";
 import { UsersService } from "./users.service";
+// import { createWriteStream } from "fs";
 
 @Resolver(() => UserObject)
 export class UsersResolver {
@@ -51,6 +53,20 @@ export class UsersResolver {
   ) {
     return this.usersService.update(user.id, input);
   }
+
+  // @Mutation(() => UserObject)
+  // @UseGuards(GqlAuthGuard)
+  // async uploadProfileImage(
+  //   @Args({ name: "file", type: () => GraphQLUpload })
+  //   { createReadStream, filename }: FileUpload,
+  // ): Promise<boolean> {
+  //   return new Promise(async (resolve, reject) =>
+  //     createReadStream()
+  //       .pipe(createWriteStream(`./uploads/${filename}`))
+  //       .on("finish", () => resolve(true))
+  //       .on("error", () => reject(false)),
+  //   );
+  // }
 
   @Query(() => UserObject)
   @UseGuards(GqlAuthGuard)

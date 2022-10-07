@@ -116,6 +116,7 @@ input RefreshTokenInput {
 
 input RegisterUserWithEmailInput {
   email: String!
+  userName: String!
   password: String!
 }
 
