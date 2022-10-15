@@ -13,7 +13,7 @@ export class UserDto {
       | "type"
       | "bio"
       | "profileImage"
-      | "banner"
+      | "bannerImage"
     >,
   ) {
     Object.assign(this, partial);
@@ -45,5 +45,5 @@ export class UserDto {
 
   @Expose()
   @ApiProperty()
-  readonly banner: string;
+  readonly bannerImage: string;
 }

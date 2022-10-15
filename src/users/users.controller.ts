@@ -104,7 +104,7 @@ export class UsersController {
         `banner-${user.id}`,
         "public",
       );
-      updateImage.banner = result.Location;
+      updateImage.bannerImage = result.Location;
     }
 
     const res = await this.usersService.update(user.id, updateImage);

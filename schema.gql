@@ -9,7 +9,7 @@ type User {
   type: String!
   bio: String
   profileImage: String
-  banner: String
+  bannerImage: String
   posts: [Post!]!
 }
 
@@ -82,7 +82,7 @@ input UpdateProfileInput {
   type: String
   bio: String
   profileImage: String
-  banner: String
+  bannerImage: String
 }
 
 input CreatePostInput {
