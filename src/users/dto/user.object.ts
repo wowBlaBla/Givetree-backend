@@ -25,5 +25,5 @@ export class UserObject {
   readonly profileImage: string;
 
   @Field({ nullable: true })
-  readonly bannerImage: string;
+  readonly banner: string;
 }

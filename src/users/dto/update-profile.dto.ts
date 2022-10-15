@@ -16,5 +16,5 @@ export class UpdateProfileDto {
 
   profileImage?: string;
 
-  bannerImage?: string;
+  banner?: string;
 }
