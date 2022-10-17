@@ -10,7 +10,7 @@ import { RefreshToken } from "./refresh-token.entity";
 import { BaseEntity } from "./base-entity.entity";
 import { Post } from "./post.entity";
 import { WalletAddress } from "./wallet-address.entity";
-import { CharityProfile } from "./charity-profile.entity";
+import { CharityProperty } from "./charity-property.entity";
 import { Socials } from "./socials.entity";
 
 export enum AccountType {
@@ -66,10 +66,10 @@ export class User extends BaseEntity {
   })
   walletAddresses = new Collection<WalletAddress>(this);
 
-  @OneToMany(() => CharityProfile, (charity) => charity.user, {
+  @OneToMany(() => CharityProperty, (charity) => charity.user, {
     cascade: [Cascade.REMOVE]
   })
-  charityProperty = new Collection<CharityProfile>(this);
+  charityProperty = new Collection<CharityProperty>(this);
 
   @OneToMany(() => Socials, (social) => social.user, {
     cascade: [Cascade.REMOVE]

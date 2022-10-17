@@ -31,14 +31,14 @@ export class Migration20220920122207 extends Migration {
     );
 
     this.addSql(
-      "create table `charity_profile` (`id` int unsigned not null auto_increment primary key, `created_at` datetime not null, `updated_at` datetime not null, `founded_at` datetime not null, `employee` int(255) unsigned not null default 0, `founders` text(2000) not null, `phone` varchar(255) not null, `user_id` int(11) unsigned not null) default character set utf8mb4 engine = InnoDB;"
+      "create table `charity_property` (`id` int unsigned not null auto_increment primary key, `created_at` datetime not null, `updated_at` datetime not null, `founded_at` datetime, `employee` int(255) unsigned default 0, `founders` text(2000), `phone` varchar(255), `user_id` int(11) unsigned not null) default character set utf8mb4 engine = InnoDB;"
     );
     this.addSql(
-      "alter table charity_profile add index `charity_profile_user_id_index`(`user_id`);"
+      "alter table charity_property add index `charity_property_user_id_index`(`user_id`);"
     );
 
     this.addSql(
-      "create table `socials` (`id` int unsigned not null auto_increment primary key, `created_at` datetime not null, `updated_at` datetime not null, `key` varchar(255) not null, `link` text(2000) not null, `user_id` int(11) unsigned not null) default character set utf8mb4 engine = InnoDB;"
+      "create table `socials` (`id` int unsigned not null auto_increment primary key, `created_at` datetime not null, `updated_at` datetime not null, `social` varchar(255) not null, `link` text(2000) not null, `user_id` int(11) unsigned not null) default character set utf8mb4 engine = InnoDB;"
     );
     this.addSql(
       "alter table `socials` add index `socials_user_id_index`(`user_id`)"
@@ -57,7 +57,7 @@ export class Migration20220920122207 extends Migration {
     );
 
     this.addSql(
-      "alter table `charity_profile` add constraint `charity_profile_user_id_foreign` foreign key (`user_id`) references `users` (`id`) on update cascade on delete CASCADE;",
+      "alter table `charity_property` add constraint `charity_property_user_id_foreign` foreign key (`user_id`) references `users` (`id`) on update cascade on delete CASCADE;",
     );
 
     this.addSql(

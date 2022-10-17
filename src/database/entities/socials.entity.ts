@@ -10,7 +10,7 @@ import { User } from "./user.entity";
 export class Socials extends BaseEntity {
     
     @Property({ nullable: false })
-    key: string;
+    social: string;
 
     @Property({ nullable: false })
     link: string;

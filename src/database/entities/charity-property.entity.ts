@@ -6,8 +6,8 @@ import {
 import { BaseEntity } from "./base-entity.entity";
 import { User } from "./user.entity";
 
-@Entity({ tableName: "charity_profile" })
-export class CharityProfile extends BaseEntity {
+@Entity({ tableName: "charity_property" })
+export class CharityProperty extends BaseEntity {
     
     @Property({ nullable: true })
     foundedAt: Date;
