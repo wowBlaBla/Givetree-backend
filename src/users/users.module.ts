@@ -7,12 +7,14 @@ import { UsersController } from "./users.controller";
 import { UsersResolver } from "./users.resolver";
 import { UsersService } from "./users.service";
 import { S3Service } from "src/services/s3.service";
+import { CharityModule } from "src/charity/charity.module";
 
 @Module({
   imports: [
-    MikroOrmModule.forFeature([User]),
     forwardRef(() => PostsModule),
     forwardRef(() => WalletAddressesModule),
+    CharityModule,
+    MikroOrmModule.forFeature([User]),
   ],
   controllers: [UsersController],
   providers: [UsersResolver, UsersService, S3Service],
