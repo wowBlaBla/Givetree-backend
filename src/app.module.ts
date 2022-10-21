@@ -16,6 +16,7 @@ import { UsersModule } from "./users/users.module";
 import { SocialsController } from './socials/socials.controller';
 import { SocialsModule } from './socials/socials.module';
 import { CharityModule } from './charity/charity.module';
+import { CollectionsModule } from './collections/collections.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { CharityModule } from './charity/charity.module';
     AuthModule,
     SocialsModule,
     CharityModule,
+    CollectionsModule,
   ],
   controllers: [AppController, SocialsController],
   providers: [AppService],
