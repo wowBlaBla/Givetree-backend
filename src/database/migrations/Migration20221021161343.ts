@@ -55,6 +55,11 @@ export class Migration20221021161343 extends Migration {
     this.addSql(
       "alter table `socials` add constraint `socials_collection_id_foreign` foreign key (`collection_id`) references `collections` (`id`) on update cascade on delete CASCADE;",
     );
+
+    //collecitons
+    this.addSql(
+      "alter table `collections` add unique `collections_address_unique`(`address`)"
+    );
   }
 
 }
