@@ -14,13 +14,14 @@ export class SocialsService {
 
   async create(
     userId: Number,
-    createSocialInput: CreateSocialDto
+    createSocialInput: CreateSocialDto,
+    connected: "user" | "collection"
   ) {
     const socials = this.socialsRepository.create({
-      user: {
+      [connected]: {
         id: userId
       },
-      ...createSocialInput
+      ...createSocialInput,
     });
 
     await this.socialsRepository.persistAndFlush(socials);

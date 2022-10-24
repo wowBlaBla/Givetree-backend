@@ -23,7 +23,7 @@ export class Migration20220920122207 extends Migration {
     );
 
     this.addSql(
-      "create table `socials` (`id` int unsigned not null auto_increment primary key, `created_at` datetime not null, `updated_at` datetime not null, `social` varchar(255) not null, `link` text(2000) not null, `user_id` int(11) unsigned not null, `collection_id` int(11) unsigned not null) default character set utf8mb4 engine = InnoDB;"
+      "create table `socials` (`id` int unsigned not null auto_increment primary key, `created_at` datetime not null, `updated_at` datetime not null, `social` varchar(255) not null, `link` text(2000) not null, `user_id` int(11) unsigned, `collection_id` int(11) unsigned, `item_type` enum('user', 'collection') not null) default character set utf8mb4 engine = InnoDB;"
     );
 
     this.addSql(

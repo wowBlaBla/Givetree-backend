@@ -56,6 +56,9 @@ export class Migration20221021161343 extends Migration {
       "alter table `socials` add constraint `socials_collection_id_foreign` foreign key (`collection_id`) references `collections` (`id`) on update cascade on delete CASCADE;",
     );
 
+    this.addSql(
+      "alter table `socials` add check (case item_type when 'user' then user_id is not null and collection_id is null when 'collection' then collection_id is not null and user_id is null end)"
+    );
     //collecitons
     this.addSql(
       "alter table `collections` add unique `collections_address_unique`(`address`)"

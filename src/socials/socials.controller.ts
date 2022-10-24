@@ -27,7 +27,7 @@ export class SocialsController {
     @CurrentUser() user: User,
     @Body() createSocialDto: CreateSocialDto
   ) {
-    return this.socialsService.create(user.id, createSocialDto);
+    return this.socialsService.create(user.id, createSocialDto, "user");
   }
 
   @Get()

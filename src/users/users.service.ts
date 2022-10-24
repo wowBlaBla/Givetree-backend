@@ -123,7 +123,10 @@ export class UsersService {
         }
       });
       if (!charity) await this.charityService.create(id, updateUserInput.charityProperty as CreateCharityDto);
-      else await this.charityService.update(id, updateUserInput.charityProperty);
+      else {
+        await this.charityService.remove(id);
+        await this.charityService.create(id, updateUserInput.charityProperty as CreateCharityDto);
+      }
     }
     
     const result = await this.findOne({
