@@ -25,18 +25,22 @@ export class CollectionsService {
   }
 
   async findOne(id: number) {
-    const collection = this.collectionRepository.findOne({
+    const collection = await this.collectionRepository.findOne({
       id: id
     });
     
     return collection;
   }
 
-  update(id: number, updateCollectionInput: UpdateCollectionInput | UpdateCollectionDto) {
-    return `This action updates a #${id} collection`;
+  async update(id: number, updateCollectionInput: UpdateCollectionInput | UpdateCollectionDto) {
+    const user = await this.collectionRepository.findOneOrFail(id);
+    this.collectionRepository.assign(user, updateCollectionInput);
+    await this.collectionRepository.flush();
+    return user;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} collection`;
+  async remove(id: number) {
+    await this.collectionRepository.removeAndFlush({ id });
+    return true;
   }
 }
