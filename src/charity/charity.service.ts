@@ -52,7 +52,7 @@ export class CharityService {
   }
 
   async remove(id: number) {
-    await this.charityPropertyRepository.removeAndFlush({ id });
+    await this.charityPropertyRepository.nativeDelete({ id });
     return true;
   }
 }

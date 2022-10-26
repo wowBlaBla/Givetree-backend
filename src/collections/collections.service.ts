@@ -35,6 +35,13 @@ export class CollectionsService {
     return collection;
   }
 
+  async findByOneAddress(address: string) {
+    const collection = await this.collectionRepository.findOne({
+      address: address
+    });
+    return collection;
+  }
+
   async update(id: number, updateCollectionInput: UpdateCollectionInput | UpdateCollectionDto) {
     const user = await this.collectionRepository.findOneOrFail(id);
     this.collectionRepository.assign(user, updateCollectionInput);
@@ -59,7 +66,7 @@ export class CollectionsService {
   }
 
   async remove(id: number) {
-    await this.collectionRepository.removeAndFlush({ id });
+    await this.collectionRepository.nativeDelete({ id });
     return true;
   }
 }

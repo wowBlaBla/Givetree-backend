@@ -137,7 +137,7 @@ export class UsersService {
   }
 
   async remove(id: number) {
-    await this.usersRepository.removeAndFlush({ id });
+    await this.usersRepository.nativeDelete({ id });
     return true;
   }
 }
