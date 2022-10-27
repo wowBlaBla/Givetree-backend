@@ -1,6 +1,14 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { AccountType } from "src/database/entities/user.entity";
 
+interface Charity {
+  foundedDate?: number;
+  employee?: number;
+  founders?: string;
+  businessNumber?: string;
+  causes?: string[];
+};
+
 export class UpdateProfileDto {
   @ApiProperty()
   readonly email?: string;
@@ -16,5 +24,7 @@ export class UpdateProfileDto {
 
   profileImage?: string;
 
-  bannerImage?: string;
+  banner?: string;
+
+  charityProperty?: Charity; 
 }

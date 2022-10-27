@@ -13,6 +13,10 @@ import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
 import configuration from "./config/configuration";
 import { UsersModule } from "./users/users.module";
+import { SocialsController } from './socials/socials.controller';
+import { SocialsModule } from './socials/socials.module';
+import { CharityModule } from './charity/charity.module';
+import { CollectionsModule } from './collections/collections.module';
 
 @Module({
   imports: [
@@ -31,8 +35,11 @@ import { UsersModule } from "./users/users.module";
     }),
     UsersModule,
     AuthModule,
+    SocialsModule,
+    CharityModule,
+    CollectionsModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, SocialsController],
   providers: [AppService],
 })
 export class AppModule implements NestModule, OnModuleInit {

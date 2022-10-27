@@ -57,7 +57,7 @@ export class PostsService {
   }
 
   async remove(id: number) {
-    await this.postsRepository.removeAndFlush({ id });
+    await this.postsRepository.nativeDelete({ id });
     return true;
   }
 }

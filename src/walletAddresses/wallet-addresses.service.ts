@@ -77,7 +77,7 @@ export class WalletAddressesService {
   }
 
   async remove(id: number) {
-    await this.walletAddressesRepository.removeAndFlush({ id });
+    await this.walletAddressesRepository.nativeDelete({ id });
     return true;
   }
 }

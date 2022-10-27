@@ -4,6 +4,8 @@ import { Injectable } from "@nestjs/common";
 import { UpdateProfileDto } from "./dto/update-profile.dto";
 import { UpdateProfileInput } from "./dto/update-profile.input";
 import { User } from "../database/entities/user.entity";
+import { CharityService } from "src/charity/charity.service";
+import { CreateCharityDto } from "src/charity/dto/create-charity.dto";
 
 interface FindAllArgs {
   relations?: string[];
@@ -22,6 +24,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: EntityRepository<User>,
+    private charityService: CharityService,
   ) {}
 
   async create(createUserInput: Partial<User>) {
@@ -111,11 +114,30 @@ export class UsersService {
     const user = await this.usersRepository.findOneOrFail(id);
     this.usersRepository.assign(user, updateUserInput);
     await this.usersRepository.flush();
-    return user;
+    if ('charityProperty' in updateUserInput) {
+      const charity = await this.usersRepository.findOne({
+        charityProperty: {
+          user: {
+            id: id
+          }
+        }
+      });
+      if (!charity) await this.charityService.create(id, updateUserInput.charityProperty as CreateCharityDto);
+      else {
+        await this.charityService.remove(id);
+        await this.charityService.create(id, updateUserInput.charityProperty as CreateCharityDto);
+      }
+    }
+    
+    const result = await this.findOne({
+      id: user.id,
+      relations: ["charityProperty", "walletAddresses", "socials"]
+    })
+    return result;
   }
 
   async remove(id: number) {
-    await this.usersRepository.removeAndFlush({ id });
+    await this.usersRepository.nativeDelete({ id });
     return true;
   }
 }
