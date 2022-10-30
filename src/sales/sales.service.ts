@@ -5,6 +5,7 @@ import { Sales } from 'src/database/entities/sales.entity';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { CreateSaleInput } from './dto/create-sale.input';
 import { UpdateSaleInput } from './dto/update-sale.input';
+import { Where } from './sales.controller';
 
 @Injectable()
 export class SalesService {
@@ -15,7 +16,6 @@ export class SalesService {
   ) { }
 
   async create(createSaleInput: CreateSaleInput | CreateSaleDto) {
-    console.log(createSaleInput);
     const existed = await this.saleRepository.findOne({
       collection: createSaleInput.collection,
       tokenId: createSaleInput.tokenId
@@ -45,7 +45,8 @@ export class SalesService {
     return `This action updates a #${id} sale`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} sale`;
+  async remove(where: Where) {
+    await this.saleRepository.nativeDelete({ ...where });
+    return true;
   }
 }

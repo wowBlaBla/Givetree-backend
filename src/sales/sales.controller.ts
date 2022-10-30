@@ -1,7 +1,13 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { CreateSaleInput } from './dto/create-sale.input';
 import { SalesService } from './sales.service';
+
+export interface Where {
+    collection: string;
+    tokenId: string;
+    seller: string;
+}
 
 @Controller('sales')
 export class SalesController {
@@ -26,5 +32,12 @@ export class SalesController {
         @Query('seller') seller: string
     ) {
         return this.salesService.find(seller);
+    }
+
+    @Delete()
+    remove(
+        @Body() where: Where
+    ) {
+        return this.salesService.remove(where);
     }
 }

@@ -3,6 +3,7 @@ import { SalesService } from './sales.service';
 import { CreateSaleInput } from './dto/create-sale.input';
 import { UpdateSaleInput } from './dto/update-sale.input';
 import { Sales } from 'src/database/entities/sales.entity';
+import { Where } from './sales.controller';
 
 @Resolver(() => Sales)
 export class SalesResolver {
@@ -29,7 +30,7 @@ export class SalesResolver {
   }
 
   @Mutation(() => Sales)
-  removeSale(@Args('id', { type: () => Int }) id: number) {
-    return this.salesService.remove(id);
+  removeSale(@Args('where') where: Where) {
+    return this.salesService.remove(where);
   }
 }
