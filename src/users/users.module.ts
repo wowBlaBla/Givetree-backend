@@ -14,6 +14,7 @@ import { CharityModule } from "src/charity/charity.module";
     forwardRef(() => PostsModule),
     forwardRef(() => WalletAddressesModule),
     CharityModule,
+    WalletAddressesModule,
     MikroOrmModule.forFeature([User]),
   ],
   controllers: [UsersController],

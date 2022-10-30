@@ -6,7 +6,8 @@ import { UpdateProfileInput } from "./dto/update-profile.input";
 import { User } from "../database/entities/user.entity";
 import { CharityService } from "src/charity/charity.service";
 import { CreateCharityDto } from "src/charity/dto/create-charity.dto";
-
+import { WalletAddressesService } from "src/walletAddresses/wallet-addresses.service";
+import { CreateWalletAddressDto } from "src/walletAddresses/dto/create-wallet-address.dto";
 interface FindAllArgs {
   relations?: string[];
 }
@@ -25,6 +26,7 @@ export class UsersService {
     @InjectRepository(User)
     private usersRepository: EntityRepository<User>,
     private charityService: CharityService,
+    private walletAddressesService: WalletAddressesService,
   ) {}
 
   async create(createUserInput: Partial<User>) {
@@ -114,25 +116,66 @@ export class UsersService {
     const user = await this.usersRepository.findOneOrFail(id);
     this.usersRepository.assign(user, updateUserInput);
     await this.usersRepository.flush();
-    if ('charityProperty' in updateUserInput) {
+    if ("charityProperty" in updateUserInput) {
       const charity = await this.usersRepository.findOne({
         charityProperty: {
           user: {
-            id: id
-          }
-        }
+            id: id,
+          },
+        },
       });
-      if (!charity) await this.charityService.create(id, updateUserInput.charityProperty as CreateCharityDto);
+      if (!charity)
+        await this.charityService.create(
+          id,
+          updateUserInput.charityProperty as CreateCharityDto,
+        );
       else {
         await this.charityService.remove(id);
-        await this.charityService.create(id, updateUserInput.charityProperty as CreateCharityDto);
+        await this.charityService.create(
+          id,
+          updateUserInput.charityProperty as CreateCharityDto,
+        );
       }
     }
-    
+
+    if ("walletAddress" in updateUserInput) {
+      const existingUser = await this.walletAddressesService.findOneByAddress({
+        address: updateUserInput.walletAddress,
+      });
+      if (existingUser) {
+        return null;
+      }
+
+      const walletAddress = await this.usersRepository.findOne({
+        walletAddresses: {
+          user: {
+            id: id,
+          },
+        },
+      });
+
+      const newWalletAddress = {
+        address: updateUserInput.walletAddress,
+      };
+
+      if (!walletAddress)
+        await this.walletAddressesService.create(
+          id,
+          newWalletAddress as CreateWalletAddressDto,
+        );
+      else {
+        await this.walletAddressesService.remove(id);
+        await this.walletAddressesService.create(
+          id,
+          newWalletAddress as CreateWalletAddressDto,
+        );
+      }
+    }
+
     const result = await this.findOne({
       id: user.id,
-      relations: ["charityProperty", "walletAddresses", "socials"]
-    })
+      relations: ["charityProperty", "walletAddresses", "socials"],
+    });
     return result;
   }
 

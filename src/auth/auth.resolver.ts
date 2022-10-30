@@ -107,7 +107,10 @@ export class AuthResolver {
 
   @Mutation(() => RegisterUserPayload)
   async registerWallet(@Args("input") input: RegisterUserWithWalletInput) {
-    const user = await this.authService.registerWithWallet(input.address);
+    const user = await this.authService.registerWithWallet(
+      input.address,
+      input.userName,
+    );
 
     if (!user) {
       return new UserInputError(

@@ -108,9 +108,7 @@ export class AuthController {
     );
 
     if (!user) {
-      throw new UnauthorizedException(
-        `User by email or username already exists.`,
-      );
+      throw new UnauthorizedException(`User already exists.`);
     }
 
     const accessToken = await this.authService.generateAccessToken(user);
@@ -135,12 +133,11 @@ export class AuthController {
   async registerWithWallet(@Body() registerInput: RegisterUserWithWalletBody) {
     const user = await this.authService.registerWithWallet(
       registerInput.address,
+      registerInput.username,
     );
 
     if (!user) {
-      throw new UnauthorizedException(
-        `User by wallet address ${registerInput.address} already exists.`,
-      );
+      throw new UnauthorizedException(`User already exists.`);
     }
 
     const accessToken = await this.authService.generateAccessToken(user);

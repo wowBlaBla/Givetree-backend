@@ -9,7 +9,12 @@ import {
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
-import { ApiBody, ApiConsumes, ApiOkResponse } from "@nestjs/swagger";
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiCreatedResponse,
+  ApiOkResponse,
+} from "@nestjs/swagger";
 import { CurrentUser } from "src/auth/decorator/current-user.decorator";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { UpdateProfileDto } from "./dto/update-profile.dto";
@@ -40,6 +45,10 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Put("profile")
+  @ApiCreatedResponse({
+    description: "User has been registered.",
+    type: UserDto,
+  })
   async update(
     @CurrentUser() user: User,
     @Body() updateUserDto: UpdateProfileDto,
@@ -49,7 +58,11 @@ export class UsersController {
       throw new UnauthorizedException(`User already exists.`);
     }
     const res = await this.usersService.update(user.id, updateUserDto);
-    return res && new UserDto(res);
+    if (res) {
+      return new UserDto(res);
+    } else {
+      throw new UnauthorizedException(`This wallet address already exists.`);
+    }
   }
 
   @UseGuards(JwtAuthGuard)

@@ -7,7 +7,7 @@ interface Charity {
   founders?: string;
   businessNumber?: string;
   causes?: string[];
-};
+}
 
 export class UpdateProfileDto {
   @ApiProperty()
@@ -26,5 +26,9 @@ export class UpdateProfileDto {
 
   banner?: string;
 
-  charityProperty?: Charity; 
+  @ApiProperty()
+  readonly charityProperty?: Charity;
+
+  @ApiProperty()
+  readonly walletAddress?: string;
 }

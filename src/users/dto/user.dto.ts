@@ -7,13 +7,7 @@ export class UserDto {
   constructor(
     partial: Pick<
       User,
-      | "id"
-      | "email"
-      | "userName"
-      | "type"
-      | "bio"
-      | "profileImage"
-      | "banner"
+      "id" | "email" | "userName" | "type" | "bio" | "profileImage" | "banner"
     >,
   ) {
     Object.assign(this, partial);

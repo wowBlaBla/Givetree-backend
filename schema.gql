@@ -122,4 +122,5 @@ input RegisterUserWithEmailInput {
 
 input RegisterUserWithWalletInput {
   address: String!
+  userName: String!
 }

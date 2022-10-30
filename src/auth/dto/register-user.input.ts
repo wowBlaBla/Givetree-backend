@@ -16,4 +16,7 @@ export class RegisterUserWithEmailInput {
 export class RegisterUserWithWalletInput {
   @Field()
   address: string;
+
+  @Field()
+  userName: string;
 }

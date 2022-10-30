@@ -48,8 +48,8 @@ export class User extends BaseEntity {
 
   @Property({ nullable: true })
   location: string;
-  
-  @Property({ nullable : false })
+
+  @Property({ nullable: false })
   tax: boolean;
 
   @Property({ nullable: true })
@@ -67,19 +67,17 @@ export class User extends BaseEntity {
   walletAddresses = new Collection<WalletAddress>(this);
 
   @OneToMany(() => CharityProperty, (charity) => charity.user, {
-    cascade: [Cascade.REMOVE]
+    cascade: [Cascade.REMOVE],
   })
   charityProperty = new Collection<CharityProperty>(this);
 
   @OneToMany(() => Socials, (social) => social.user, {
-    cascade: [Cascade.REMOVE]
+    cascade: [Cascade.REMOVE],
   })
   socials = new Collection<Socials>(this);
 
   @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user, {
     cascade: [Cascade.REMOVE],
   })
-
   refreshTokens = new Collection<RefreshToken>(this);
-
 }

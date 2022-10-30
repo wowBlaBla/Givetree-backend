@@ -20,29 +20,39 @@ export class AuthService {
   ) {}
 
   async validateUserWithEmail(email: string, pass: string) {
-    const user = await this.usersService.findOne({
+    let user = await this.usersService.findOne({
       email,
-      relations: ['charityProperty', 'walletAddresses', "socials"]
+      // relations: ["charityProperty", "walletAddresses", "socials"],
     });
-    if (user) {
-      const { password, ...result } = user;
-      const match = await bcrypt.compare(pass, password);
-      if (match) {
-        return result;
-      }
+
+    if (!user) {
+      user = await this.usersService.findOne({
+        userName: email,
+      });
     }
-    return null;
+
+    if (!user) {
+      return null;
+    }
+
+    const { password, ...result } = user;
+    const match = await bcrypt.compare(pass, password);
+    if (match) {
+      return result;
+    } else {
+      return null;
+    }
   }
 
   async validateUserWithWallet(address: string) {
     const user = await this.usersService.findOne({
       walletAddress: address,
-      relations: ['charityProperty', 'walletAddresses', "socials"]
+      relations: ["charityProperty", "walletAddresses", "socials"],
     });
     if (user) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      let { password, ...result } = user;
-      
+      const { password, ...result } = user;
+
       return result;
     }
     return null;
@@ -98,7 +108,7 @@ export class AuthService {
 
       const user = await this.usersService.findOne({
         id: token.user.id,
-        relations: ["charityProperty", "walletAddresses", "socials"]
+        relations: ["charityProperty", "walletAddresses", "socials"],
       });
 
       if (!user) {
@@ -144,7 +154,12 @@ export class AuthService {
     return user;
   }
 
-  async registerWithWallet(address: string) {
+  async registerWithWallet(address: string, userName: string) {
+    let user = await this.usersService.findOne({ userName });
+    if (user) {
+      return null;
+    }
+
     const walletAddress = await this.usersService.findOne({
       walletAddress: address,
     });
@@ -152,8 +167,9 @@ export class AuthService {
       return null;
     }
 
-    const user = await this.usersService.create({
+    user = await this.usersService.create({
       email: null,
+      userName,
       password: null,
     });
     await this.walletAddressesService.create(user.id, { address });

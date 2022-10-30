@@ -14,4 +14,7 @@ export class RegisterUserWithEmailBody {
 export class RegisterUserWithWalletBody {
   @ApiProperty()
   address: string;
+
+  @ApiProperty()
+  username: string;
 }
