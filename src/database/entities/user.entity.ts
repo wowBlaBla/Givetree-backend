@@ -49,7 +49,7 @@ export class User extends BaseEntity {
   @Property({ nullable: true })
   location: string;
 
-  @Property({ nullable: false })
+  @Property({ nullable: false, default: true })
   tax: boolean;
 
   @Property({ nullable: true })
