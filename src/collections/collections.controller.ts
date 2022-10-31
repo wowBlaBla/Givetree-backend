@@ -3,6 +3,7 @@ import {
     Controller,
     Get,
     Param,
+    Query,
     Post,
     Put,
     UploadedFiles,
@@ -11,9 +12,7 @@ import {
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from "@nestjs/swagger";
-import { CurrentUser } from 'src/auth/decorator/current-user.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { User } from 'src/database/entities/user.entity';
 import { S3Service } from 'src/services/s3.service';
 import { CollectionsService } from './collections.service';
 import { CreateCollectionDto } from './dto/create-collection.dto';
@@ -27,8 +26,10 @@ export class CollectionsController {
     ) {}
 
     @Get()
-    findAll() {
-        return this.collectionsService.findAll();
+    findAll(
+        @Query() queries
+    ) {
+        return this.collectionsService.findAll(queries);
     }
 
     @Post()

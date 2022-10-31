@@ -20,6 +20,14 @@ export enum Category {
   COLLECTIBLE = "COLLECTIBLE",
 }
 
+export enum networks {
+  Ethereum = "ethereum",
+  Polygon = "polygon",
+  Celo = "celo",
+  Arbitrum = "arbitrum",
+  Optimism = "optimism",
+}
+
 @Entity({ tableName: "collections" })
 export class Collections extends BaseEntity {
   @Property()
@@ -35,9 +43,6 @@ export class Collections extends BaseEntity {
   description: string;
 
   @Property()
-  network: string;
-
-  @Property()
   logo: string;
 
   @Property()
@@ -51,6 +56,9 @@ export class Collections extends BaseEntity {
 
   @Enum({ items: () => Category })
   category: Category;
+
+  @Enum({ items: () => networks })
+  network: networks;
 
   @OneToMany(() => Socials, (social) => social.collection, {
     cascade: [Cascade.REMOVE],
