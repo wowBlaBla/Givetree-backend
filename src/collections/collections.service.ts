@@ -9,6 +9,11 @@ import { CreateCollectionInput } from './dto/create-collection.input';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
 import { UpdateCollectionInput } from './dto/update-collection.input';
 
+interface Queries {
+  category?: string;
+  network?: string;
+};
+
 @Injectable()
 export class CollectionsService {
   constructor(
@@ -23,8 +28,19 @@ export class CollectionsService {
     return collection;
   }
 
-  findAll() {
-    return this.collectionRepository.findAll();
+  async findAll(queries: Queries) {
+    let result:Collections[];
+    if (queries.category == 'all')
+      result = await this.collectionRepository.findAll();
+    else {
+      if (queries.category) {
+        let categories = queries.category.split(',');
+        result = await this.collectionRepository.find({
+          category: categories
+        });
+      }
+    }
+    return result;
   }
 
   async findOne(id: number) {

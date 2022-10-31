@@ -4,6 +4,11 @@ import { CollectionsService } from './collections.service';
 import { CreateCollectionInput } from './dto/create-collection.input';
 import { UpdateCollectionInput } from './dto/update-collection.input';
 
+interface Queries {
+  category?: string;
+  network?: string;
+};
+
 @Resolver(() => Collections)
 export class CollectionsResolver {
   constructor(private readonly collectionsService: CollectionsService) {}
@@ -14,8 +19,8 @@ export class CollectionsResolver {
   }
 
   @Query(() => [Collections], { name: 'collections' })
-  findAll() {
-    return this.collectionsService.findAll();
+  findAll(queries: Queries) {
+    return this.collectionsService.findAll(queries);
   }
 
   @Query(() => Collections, { name: 'collection' })
