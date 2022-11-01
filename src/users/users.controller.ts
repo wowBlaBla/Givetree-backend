@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Put,
+  Query,
   UnauthorizedException,
   UploadedFiles,
   UseGuards,
@@ -24,6 +25,12 @@ import { UsersService } from "./users.service";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
 import { S3Service } from "src/services/s3.service";
 
+interface FindAllArgs {
+  type?: string;
+  username?: string;
+  relations?: string;
+}
+
 @Controller("users")
 export class UsersController {
   constructor(
@@ -32,8 +39,16 @@ export class UsersController {
   ) {}
 
   @Get()
-  async findAll() {
-    const users = await this.usersService.findAll();
+  async findAll(
+    @Query() query: FindAllArgs
+  ) {
+    let filter = {
+      type: query.type,
+      relations: query.relations ? query.relations.split(',') : [],
+      userName: query.username
+    };
+
+    const users = await this.usersService.findAll(filter);
     return users.map((u) => new UserDto(u));
   }
 
