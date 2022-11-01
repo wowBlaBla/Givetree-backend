@@ -18,6 +18,7 @@ import { SocialsModule } from './socials/socials.module';
 import { CharityModule } from './charity/charity.module';
 import { CollectionsModule } from './collections/collections.module';
 import { SalesModule } from './sales/sales.module';
+import { DonationsModule } from './donations/donations.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { SalesModule } from './sales/sales.module';
     CharityModule,
     CollectionsModule,
     SalesModule,
+    DonationsModule,
   ],
   controllers: [AppController, SocialsController],
   providers: [AppService],
