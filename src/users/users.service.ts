@@ -8,6 +8,8 @@ import { CharityService } from "src/charity/charity.service";
 import { CreateCharityDto } from "src/charity/dto/create-charity.dto";
 import { WalletAddressesService } from "src/walletAddresses/wallet-addresses.service";
 import { CreateWalletAddressDto } from "src/walletAddresses/dto/create-wallet-address.dto";
+import { SocialsService } from "src/socials/socials.service";
+
 interface FindAllArgs {
   relations?: string[];
 }
@@ -27,6 +29,7 @@ export class UsersService {
     private usersRepository: EntityRepository<User>,
     private charityService: CharityService,
     private walletAddressesService: WalletAddressesService,
+    private socialsService: SocialsService,
   ) {}
 
   async create(createUserInput: Partial<User>) {
@@ -109,73 +112,64 @@ export class UsersService {
     return user;
   }
 
-  async update(
-    id: number,
-    updateUserInput: UpdateProfileInput | UpdateProfileDto,
-  ) {
+  async update(id: number, updateUserInput: UpdateProfileDto) {
     const user = await this.usersRepository.findOneOrFail(id);
-    this.usersRepository.assign(user, updateUserInput);
-    await this.usersRepository.flush();
-    if ("charityProperty" in updateUserInput) {
-      const charity = await this.usersRepository.findOne({
-        charityProperty: {
-          user: {
-            id: id,
-          },
-        },
-      });
-      if (!charity)
-        await this.charityService.create(
-          id,
-          updateUserInput.charityProperty as CreateCharityDto,
-        );
-      else {
-        await this.charityService.remove(id);
-        await this.charityService.create(
-          id,
-          updateUserInput.charityProperty as CreateCharityDto,
-        );
+    const { socials, charityProperty, walletAddress, ...res } = updateUserInput;
+
+    this.usersRepository.assign(user, res);
+
+    await this.socialsService.removeByUserId(id);
+    if (socials) {
+      for (let i = 0; i < socials.length; i++) {
+        await this.socialsService.create(id, socials[i], "user");
       }
     }
 
-    if ("walletAddress" in updateUserInput) {
-      const existingUser = await this.walletAddressesService.findOneByAddress({
-        address: updateUserInput.walletAddress,
-      });
-      if (existingUser) {
-        return null;
-      }
-
-      const walletAddress = await this.usersRepository.findOne({
-        walletAddresses: {
-          user: {
-            id: id,
-          },
-        },
-      });
-
-      const newWalletAddress = {
-        address: updateUserInput.walletAddress,
-      };
-
-      if (!walletAddress)
-        await this.walletAddressesService.create(
-          id,
-          newWalletAddress as CreateWalletAddressDto,
-        );
-      else {
-        await this.walletAddressesService.remove(id);
-        await this.walletAddressesService.create(
-          id,
-          newWalletAddress as CreateWalletAddressDto,
-        );
-      }
+    await this.charityService.removeByUserId(id);
+    if (charityProperty) {
+      await this.charityService.create(id, charityProperty);
     }
 
+    // if (walletAddress) {
+    //   const existingUser = await this.walletAddressesService.findOneByAddress({
+    //     address: updateUserInput.walletAddress,
+    //   });
+    //   if (existingUser) {
+    //     return null;
+    //   }
+
+    //   const walletAddress = await this.usersRepository.findOne({
+    //     walletAddresses: {
+    //       user: {
+    //         id: id,
+    //       },
+    //     },
+    //   });
+
+    //   const newWalletAddress = {
+    //     address: updateUserInput.walletAddress,
+    //   };
+
+    //   if (!walletAddress)
+    //     await this.walletAddressesService.create(
+    //       id,
+    //       newWalletAddress as CreateWalletAddressDto,
+    //     );
+    //   else {
+    //     await this.walletAddressesService.remove(id);
+    //     await this.walletAddressesService.create(
+    //       id,
+    //       newWalletAddress as CreateWalletAddressDto,
+    //     );
+    //   }
+    // }
+
+    this.usersRepository.flush();
     const result = await this.findOne({
       id: user.id,
       relations: ["charityProperty", "walletAddresses", "socials"],
     });
+
     return result;
   }
 

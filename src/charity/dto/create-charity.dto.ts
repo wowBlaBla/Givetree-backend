@@ -1,16 +1,18 @@
 import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateCharityDto {
-    
-    @ApiProperty()
-    founded_at?: Date;
+  @ApiProperty()
+  foundedAt?: Date;
 
-    @ApiProperty()
-    employee?: Number;
+  @ApiProperty()
+  employee?: number;
 
-    @ApiProperty()
-    founders?: string;
+  @ApiProperty()
+  founders?: string;
 
-    @ApiProperty()
-    phone?: string;
+  @ApiProperty()
+  businessNumber?: string;
+
+  @ApiProperty()
+  causes?: string[];
 }

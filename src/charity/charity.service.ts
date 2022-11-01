@@ -1,29 +1,28 @@
-import { InjectRepository } from '@mikro-orm/nestjs';
-import { Injectable } from '@nestjs/common';
-import { CharityProperty } from 'src/database/entities/charity-property.entity';
-import { CreateCharityInput } from './dto/create-charity.input';
-import { UpdateCharityInput } from './dto/update-charity.input';
-import { EntityRepository } from '@mikro-orm/mariadb';
-import { CreateCharityDto } from './dto/create-charity.dto';
-import { UpdateCharityDto } from './dto/update-charity.dto';
+import { InjectRepository } from "@mikro-orm/nestjs";
+import { Injectable } from "@nestjs/common";
+import { CharityProperty } from "src/database/entities/charity-property.entity";
+import { CreateCharityInput } from "./dto/create-charity.input";
+import { UpdateCharityInput } from "./dto/update-charity.input";
+import { EntityRepository } from "@mikro-orm/mariadb";
+import { CreateCharityDto } from "./dto/create-charity.dto";
+import { UpdateCharityDto } from "./dto/update-charity.dto";
 
 @Injectable()
 export class CharityService {
-
   constructor(
     @InjectRepository(CharityProperty)
-    private charityPropertyRepository: EntityRepository<CharityProperty>
+    private charityPropertyRepository: EntityRepository<CharityProperty>,
   ) {}
 
   async create(
     userId: number,
-    createCharityInput: CreateCharityInput | CreateCharityDto
+    createCharityInput: CreateCharityInput | CreateCharityDto,
   ) {
     const charity = this.charityPropertyRepository.create({
       user: {
-        id: userId
+        id: userId,
       },
-      ...createCharityInput
+      ...createCharityInput,
     });
 
     await this.charityPropertyRepository.persistAndFlush(charity);
@@ -38,11 +37,14 @@ export class CharityService {
     return `This action returns a #${id} charity`;
   }
 
-  async update(id: number, updateCharityInput: UpdateCharityInput | UpdateCharityDto) {
+  async update(
+    id: number,
+    updateCharityInput: UpdateCharityInput | UpdateCharityDto,
+  ) {
     const charity = await this.charityPropertyRepository.findOne({
       user: {
-        id: id
-      }
+        id: id,
+      },
     });
     if (charity) {
       this.charityPropertyRepository.assign(charity, updateCharityInput);
@@ -54,5 +56,13 @@ export class CharityService {
   async remove(id: number) {
     await this.charityPropertyRepository.nativeDelete({ id });
     return true;
+  }
+
+  removeByUserId(userId: number) {
+    return this.charityPropertyRepository.nativeDelete({
+      user: {
+        id: userId,
+      },
+    });
   }
 }

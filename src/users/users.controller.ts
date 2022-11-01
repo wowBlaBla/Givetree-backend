@@ -119,7 +119,6 @@ export class UsersController {
       );
       updateImage.banner = result.Location;
     }
-
     const res = await this.usersService.update(user.id, updateImage);
     return res && new UserDto(res);
   }

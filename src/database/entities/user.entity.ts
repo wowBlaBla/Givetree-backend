@@ -4,6 +4,7 @@ import {
   Entity,
   Enum,
   OneToMany,
+  OneToOne,
   Property,
 } from "@mikro-orm/core";
 import { RefreshToken } from "./refresh-token.entity";
@@ -66,10 +67,8 @@ export class User extends BaseEntity {
   })
   walletAddresses = new Collection<WalletAddress>(this);
 
-  @OneToMany(() => CharityProperty, (charity) => charity.user, {
-    cascade: [Cascade.REMOVE],
-  })
-  charityProperty = new Collection<CharityProperty>(this);
+  @OneToOne(() => CharityProperty, (charity) => charity.user)
+  charityProperty: CharityProperty;
 
   @OneToMany(() => Socials, (social) => social.user, {
     cascade: [Cascade.REMOVE],

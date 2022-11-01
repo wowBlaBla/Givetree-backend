@@ -1,5 +1,7 @@
 import { Field, Int, ObjectType } from "@nestjs/graphql";
+import { CreateCharityDto } from "src/charity/dto/create-charity.dto";
 import { AccountType } from "src/database/entities/user.entity";
+import { CreateSocialDto } from "src/socials/dto/create-social.dto";
 
 @ObjectType("User")
 export class UserObject {
@@ -26,4 +28,13 @@ export class UserObject {
 
   @Field({ nullable: true })
   readonly banner: string;
+
+  // @Field()
+  // readonly charityProperty: CreateCharityDto;
+
+  // @Field()
+  // readonly walletAddress: string;
+
+  // @Field()
+  // readonly socials: CreateSocialDto[];
 }
