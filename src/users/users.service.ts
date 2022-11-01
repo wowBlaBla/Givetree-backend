@@ -8,8 +8,9 @@ import { CharityService } from "src/charity/charity.service";
 import { CreateCharityDto } from "src/charity/dto/create-charity.dto";
 import { WalletAddressesService } from "src/walletAddresses/wallet-addresses.service";
 import { CreateWalletAddressDto } from "src/walletAddresses/dto/create-wallet-address.dto";
-interface FindAllArgs {
+export interface FindAllArgs {
   relations?: string[];
+  type?: string;
 }
 
 interface FindOneArgs extends FindAllArgs {
@@ -35,9 +36,11 @@ export class UsersService {
     return user;
   }
 
-  findAll(args?: FindAllArgs) {
-    const { relations } = args;
-    return this.usersRepository.find({}, relations);
+  findAll(args?: FindOneArgs) {
+    const { relations, type, userName } = args;
+    let query:FindOneArgs = (type == 'standard' || type == 'charity') ? { type } : {};
+    if (userName) query.userName = userName;
+    return this.usersRepository.find(query, relations);
   }
 
   findOne({
