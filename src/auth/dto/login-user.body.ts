@@ -11,4 +11,7 @@ export class LoginUserWithEmailBody {
 export class LoginUserWithWalletBody {
   @ApiProperty()
   address: string;
+
+  @ApiProperty()
+  network: string;
 }

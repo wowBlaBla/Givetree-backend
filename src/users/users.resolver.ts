@@ -51,7 +51,7 @@ export class UsersResolver {
     @GqlCurrentUser() user: User,
     @Args("input") input: UpdateProfileInput,
   ) {
-    return this.usersService.update(user.id, input);
+    // return this.usersService.update(user.id, input);
   }
 
   // @Mutation(() => UserObject)

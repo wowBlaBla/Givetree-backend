@@ -1,13 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { CreateCharityDto } from "src/charity/dto/create-charity.dto";
 import { AccountType } from "src/database/entities/user.entity";
-
-interface Charity {
-  foundedDate?: number;
-  employee?: number;
-  founders?: string;
-  businessNumber?: string;
-  causes?: string[];
-}
+import { CreateSocialDto } from "src/socials/dto/create-social.dto";
+import { CreateWalletAddressDto } from "src/walletAddresses/dto/create-wallet-address.dto";
 
 export class UpdateProfileDto {
   @ApiProperty()
@@ -27,8 +22,11 @@ export class UpdateProfileDto {
   banner?: string;
 
   @ApiProperty()
-  readonly charityProperty?: Charity;
+  readonly charityProperty?: CreateCharityDto;
 
   @ApiProperty()
-  readonly walletAddress?: string;
+  readonly walletAddress?: CreateWalletAddressDto;
+
+  @ApiProperty()
+  readonly socials?: CreateSocialDto[];
 }

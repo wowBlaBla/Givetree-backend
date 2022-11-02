@@ -27,25 +27,30 @@ import { LocalAuthGuard } from "./guards/local-auth.guard";
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @UseGuards(LocalAuthGuard)
   @Post("login-email")
-  @ApiBody({ type: LoginUserWithEmailBody })
   @ApiOkResponse({
     description: "User has been logged in.",
     type: LoginUserResponse,
   })
-  async loginEmail(@Request() req) {
-    const accessToken = await this.authService.generateAccessToken(req.user);
+  async loginEmail(@Body() loginInput: LoginUserWithEmailBody) {
+    const user = await this.authService.validateUserWithEmail(
+      loginInput.email,
+      loginInput.password,
+    );
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    const accessToken = await this.authService.generateAccessToken(user);
     const refreshToken = await this.authService.generateRefreshToken(
-      req.user,
+      user,
       60 * 60 * 24 * 30,
     );
 
     const payload = new LoginUserResponse();
-    payload.user = new UserDto(req.user);
+    payload.user = new UserDto(user);
     payload.accessToken = accessToken;
     payload.refreshToken = refreshToken;
-
     return payload;
   }
 
@@ -57,6 +62,7 @@ export class AuthController {
   async loginWallet(@Body() loginInput: LoginUserWithWalletBody) {
     const user = await this.authService.validateUserWithWallet(
       loginInput.address,
+      loginInput.network,
     );
 
     if (!user) {
@@ -91,7 +97,6 @@ export class AuthController {
     const payload = new RefreshTokenResponse();
     payload.user = new UserDto(user);
     payload.accessToken = token;
-
     return payload;
   }
 
@@ -134,6 +139,7 @@ export class AuthController {
     const user = await this.authService.registerWithWallet(
       registerInput.address,
       registerInput.username,
+      registerInput.network,
     );
 
     if (!user) {

@@ -2,12 +2,12 @@ import { EntityRepository, expr } from "@mikro-orm/core";
 import { InjectRepository } from "@mikro-orm/nestjs";
 import { Injectable } from "@nestjs/common";
 import { UpdateProfileDto } from "./dto/update-profile.dto";
-import { UpdateProfileInput } from "./dto/update-profile.input";
 import { User } from "../database/entities/user.entity";
 import { CharityService } from "src/charity/charity.service";
-import { CreateCharityDto } from "src/charity/dto/create-charity.dto";
 import { WalletAddressesService } from "src/walletAddresses/wallet-addresses.service";
 import { CreateWalletAddressDto } from "src/walletAddresses/dto/create-wallet-address.dto";
+import { SocialsService } from "src/socials/socials.service";
+
 export interface FindAllArgs {
   relations?: string[];
   type?: string;
@@ -17,7 +17,7 @@ interface FindOneArgs extends FindAllArgs {
   id?: number;
   email?: string;
   userName?: string;
-  walletAddress?: string;
+  walletAddress?: CreateWalletAddressDto;
   postId?: number;
 }
 
@@ -28,6 +28,7 @@ export class UsersService {
     private usersRepository: EntityRepository<User>,
     private charityService: CharityService,
     private walletAddressesService: WalletAddressesService,
+    private socialsService: SocialsService,
   ) {}
 
   async create(createUserInput: Partial<User>) {
@@ -38,7 +39,8 @@ export class UsersService {
 
   findAll(args?: FindOneArgs) {
     const { relations, type, userName } = args;
-    let query:FindOneArgs = (type == 'standard' || type == 'charity') ? { type } : {};
+    const query: FindOneArgs =
+      type == "standard" || type == "charity" ? { type } : {};
     if (userName) query.userName = userName;
     return this.usersRepository.find(query, relations);
   }
@@ -65,7 +67,7 @@ export class UsersService {
       );
     } else if (walletAddress) {
       return this.usersRepository.findOne(
-        { walletAddresses: { address: walletAddress } },
+        { walletAddresses: walletAddress },
         relations,
       );
     } else if (postId) {
@@ -97,9 +99,10 @@ export class UsersService {
       }
       if (walletAddress) {
         condition["$or"].push({
-          walletAddresses: { address: walletAddress },
+          walletAddresses: walletAddress,
         });
       }
+
       const res = await this.usersRepository.find(
         {
           $and: [{ id: { $ne: id } }, condition],
@@ -114,67 +117,58 @@ export class UsersService {
 
   async update(
     id: number,
-    updateUserInput: UpdateProfileInput | UpdateProfileDto,
+    updateUserInput: Omit<
+      UpdateProfileDto,
+      "email" | "userName" | "walletAddress"
+    >,
   ) {
     const user = await this.usersRepository.findOneOrFail(id);
-    this.usersRepository.assign(user, updateUserInput);
-    await this.usersRepository.flush();
-    if ("charityProperty" in updateUserInput) {
-      const charity = await this.usersRepository.findOne({
-        charityProperty: {
-          user: {
-            id: id,
-          },
-        },
-      });
-      if (!charity)
-        await this.charityService.create(
-          id,
-          updateUserInput.charityProperty as CreateCharityDto,
-        );
-      else {
-        await this.charityService.remove(id);
-        await this.charityService.create(
-          id,
-          updateUserInput.charityProperty as CreateCharityDto,
-        );
+    const { charityProperty, socials, ...res } = updateUserInput;
+
+    this.usersRepository.assign(user, res);
+
+    await this.charityService.removeByUserId(id);
+    if (charityProperty) {
+      await this.charityService.create(id, charityProperty);
+    }
+
+    if (socials) {
+      await this.socialsService.removeByUserId(id);
+      for (let i = 0; i < socials.length; i++) {
+        await this.socialsService.create(id, socials[i], "user");
       }
     }
 
-    if ("walletAddress" in updateUserInput) {
-      const existingUser = await this.walletAddressesService.findOneByAddress({
-        address: updateUserInput.walletAddress,
-      });
-      if (existingUser) {
-        return null;
-      }
+    this.usersRepository.flush();
+    const result = await this.findOne({
+      id: user.id,
+      relations: ["charityProperty", "walletAddresses", "socials"],
+    });
 
-      const walletAddress = await this.usersRepository.findOne({
-        walletAddresses: {
-          user: {
-            id: id,
-          },
-        },
-      });
+    return result;
+  }
 
-      const newWalletAddress = {
-        address: updateUserInput.walletAddress,
-      };
+  async updateAccounts(
+    id: number,
+    updateUserInput: Pick<
+      UpdateProfileDto,
+      "email" | "userName" | "walletAddress"
+    >,
+  ) {
+    const user = await this.usersRepository.findOneOrFail(id);
+    const { walletAddress, ...res } = updateUserInput;
+    this.usersRepository.assign(user, res);
 
-      if (!walletAddress)
-        await this.walletAddressesService.create(
-          id,
-          newWalletAddress as CreateWalletAddressDto,
-        );
-      else {
-        await this.walletAddressesService.remove(id);
-        await this.walletAddressesService.create(
-          id,
-          newWalletAddress as CreateWalletAddressDto,
-        );
-      }
+    if (walletAddress) {
+      await this.walletAddressesService.removeByUserIdAndType(
+        id,
+        walletAddress.type,
+      );
+
+      await this.walletAddressesService.create(id, walletAddress);
     }
 
+    this.usersRepository.flush();
     const result = await this.findOne({
       id: user.id,
       relations: ["charityProperty", "walletAddresses", "socials"],

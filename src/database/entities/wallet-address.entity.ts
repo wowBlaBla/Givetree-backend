@@ -4,8 +4,14 @@ import { User } from "./user.entity";
 
 @Entity({ tableName: "wallet_addresses" })
 export class WalletAddress extends BaseEntity {
-  @Property({ unique: true })
+  @Property()
   address: string;
+
+  @Property()
+  network: string;
+
+  @Property()
+  type: string;
 
   @ManyToOne(() => User, { joinColumn: "user_id", onDelete: "CASCADE" })
   user: User;

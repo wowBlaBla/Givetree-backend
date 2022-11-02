@@ -19,12 +19,17 @@ export class Socials extends BaseEntity {
   @Enum({ items: () => Type })
   item_type: Type;
 
-  @ManyToOne(() => User, { joinColumn: "user_id", onDelete: "CASCADE" })
+  @ManyToOne(() => User, {
+    joinColumn: "user_id",
+    onDelete: "CASCADE",
+    nullable: true,
+  })
   user: User;
 
   @ManyToOne(() => Collections, {
     joinColumn: "collection_id",
     onDelete: "CASCADE",
+    nullable: true,
   })
   collection: Collections;
 }

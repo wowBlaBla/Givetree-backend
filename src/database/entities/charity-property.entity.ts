@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, Property } from "@mikro-orm/core";
+import { Entity, OneToOne, Property } from "@mikro-orm/core";
 import { BaseEntity } from "./base-entity.entity";
 import { User } from "./user.entity";
 
@@ -14,8 +14,8 @@ export class CharityProperty extends BaseEntity {
   founders: string;
 
   @Property({ nullable: true })
-  phone: string;
+  businessNumber: string;
 
-  @ManyToOne(() => User, { joinColumn: "user_id", onDelete: "CASCADE" })
+  @OneToOne(() => User)
   user: User;
 }

@@ -1,9 +1,9 @@
-import { EntityRepository } from '@mikro-orm/mariadb';
-import { InjectRepository } from '@mikro-orm/nestjs';
-import { Injectable } from '@nestjs/common';
-import { Socials } from 'src/database/entities/socials.entity';
-import { CreateSocialDto } from './dto/create-social.dto';
-import { UpdateSocialDto } from './dto/update-social.dto';
+import { EntityRepository } from "@mikro-orm/mariadb";
+import { InjectRepository } from "@mikro-orm/nestjs";
+import { Injectable } from "@nestjs/common";
+import { Socials } from "src/database/entities/socials.entity";
+import { CreateSocialDto } from "./dto/create-social.dto";
+import { UpdateSocialDto } from "./dto/update-social.dto";
 
 @Injectable()
 export class SocialsService {
@@ -13,13 +13,13 @@ export class SocialsService {
   ) {}
 
   async create(
-    userId: Number,
+    userId: number,
     createSocialInput: CreateSocialDto,
-    connected: "user" | "collection"
+    connected: "user" | "collection",
   ) {
     const socials = this.socialsRepository.create({
       [connected]: {
-        id: userId
+        id: userId,
       },
       ...createSocialInput,
     });
@@ -40,8 +40,25 @@ export class SocialsService {
     return `This action updates a #${id} social`;
   }
 
-  async remove(id: number) {
-    await this.socialsRepository.nativeDelete({ id });
-    return true;
+  remove(id: number) {
+    return this.socialsRepository.nativeDelete({ id });
+  }
+
+  async removeByUserId(userId: number) {
+    const socials = await this.socialsRepository.find({ user: { id: userId } });
+    await this.socialsRepository.removeAndFlush(socials);
+    // return this.socialsRepository.nativeDelete({
+    //   user: {
+    //     id: userId,
+    //   },
+    // });
+  }
+
+  removeByCollectionId(collectionId: number) {
+    return this.socialsRepository.removeAndFlush({
+      collection: {
+        id: collectionId,
+      },
+    });
   }
 }
