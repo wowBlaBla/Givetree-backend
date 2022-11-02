@@ -80,4 +80,11 @@ export class WalletAddressesService {
     await this.walletAddressesRepository.nativeDelete({ id });
     return true;
   }
+
+  async removeByUserIdAndType(userId: number, type: string) {
+    return this.walletAddressesRepository.nativeDelete({
+      type,
+      user: { id: userId },
+    });
+  }
 }

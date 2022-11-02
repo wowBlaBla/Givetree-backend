@@ -13,4 +13,7 @@ export class LoginUserWithEmailInput {
 export class LoginUserWithWalletInput {
   @Field()
   address: string;
+
+  @Field()
+  network: string;
 }

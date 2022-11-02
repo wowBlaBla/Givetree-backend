@@ -45,7 +45,10 @@ export class AuthResolver {
 
   @Mutation(() => LoginUserPayload)
   async loginWallet(@Args("input") input: LoginUserWithWalletInput) {
-    const user = await this.authService.validateUserWithWallet(input.address);
+    const user = await this.authService.validateUserWithWallet(
+      input.address,
+      input.network,
+    );
 
     if (!user) {
       return new UserInputError("Wallet address incorrect.");
@@ -110,6 +113,7 @@ export class AuthResolver {
     const user = await this.authService.registerWithWallet(
       input.address,
       input.userName,
+      input.network,
     );
 
     if (!user) {

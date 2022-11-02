@@ -83,7 +83,7 @@ export class WalletAddressesResolver {
       return walletAddress.user;
     }
     return await this.usersService.findOne({
-      walletAddress: walletAddress.address,
+      walletAddress: walletAddress,
     });
   }
 }

@@ -44,9 +44,9 @@ export class AuthService {
     }
   }
 
-  async validateUserWithWallet(address: string) {
+  async validateUserWithWallet(address: string, network: string) {
     const user = await this.usersService.findOne({
-      walletAddress: address,
+      walletAddress: { address, network, type: "auth" },
       relations: ["charityProperty", "walletAddresses", "socials"],
     });
     if (user) {
@@ -151,14 +151,14 @@ export class AuthService {
     return user;
   }
 
-  async registerWithWallet(address: string, userName: string) {
+  async registerWithWallet(address: string, userName: string, network: string) {
     let user = await this.usersService.findOne({ userName });
     if (user) {
       return null;
     }
 
     const walletAddress = await this.usersService.findOne({
-      walletAddress: address,
+      walletAddress: { address, type: "auth", network },
     });
     if (walletAddress) {
       return null;
@@ -169,7 +169,11 @@ export class AuthService {
       userName,
       password: null,
     });
-    await this.walletAddressesService.create(user.id, { address });
+    await this.walletAddressesService.create(user.id, {
+      address,
+      type: "auth",
+      network,
+    });
 
     return user;
   }

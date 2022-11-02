@@ -39,13 +39,11 @@ export class UsersController {
   ) {}
 
   @Get()
-  async findAll(
-    @Query() query: FindAllArgs
-  ) {
-    let filter = {
+  async findAll(@Query() query: FindAllArgs) {
+    const filter = {
       type: query.type,
-      relations: query.relations ? query.relations.split(',') : [],
-      userName: query.username
+      relations: query.relations ? query.relations.split(",") : [],
+      userName: query.username,
     };
 
     const users = await this.usersService.findAll(filter);
@@ -61,23 +59,41 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Put("profile")
   @ApiCreatedResponse({
-    description: "User has been registered.",
+    description: "User has been updated.",
     type: UserDto,
   })
   async update(
     @CurrentUser() user: User,
-    @Body() updateUserDto: UpdateProfileDto,
+    @Body()
+    updateUserDto: Omit<
+      UpdateProfileDto,
+      "email" | "userName" | "walletAddress"
+    >,
+  ) {
+    const res = await this.usersService.update(user.id, updateUserDto);
+    return res && new UserDto(res);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put("profileAccount")
+  @ApiCreatedResponse({
+    description: "User has been updated.",
+    type: UserDto,
+  })
+  async updateAccount(
+    @CurrentUser() user: User,
+    @Body()
+    updateUserDto: Pick<
+      UpdateProfileDto,
+      "email" | "userName" | "walletAddress"
+    >,
   ) {
     const result = await this.usersService.findEither(user.id, updateUserDto);
     if (result) {
       throw new UnauthorizedException(`User already exists.`);
     }
-    const res = await this.usersService.update(user.id, updateUserDto);
-    if (res) {
-      return new UserDto(res);
-    } else {
-      throw new UnauthorizedException(`This wallet address already exists.`);
-    }
+    const res = await this.usersService.updateAccounts(user.id, updateUserDto);
+    return res && new UserDto(res);
   }
 
   @UseGuards(JwtAuthGuard)

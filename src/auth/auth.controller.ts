@@ -62,6 +62,7 @@ export class AuthController {
   async loginWallet(@Body() loginInput: LoginUserWithWalletBody) {
     const user = await this.authService.validateUserWithWallet(
       loginInput.address,
+      loginInput.network,
     );
 
     if (!user) {
@@ -138,6 +139,7 @@ export class AuthController {
     const user = await this.authService.registerWithWallet(
       registerInput.address,
       registerInput.username,
+      registerInput.network,
     );
 
     if (!user) {

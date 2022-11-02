@@ -108,6 +108,7 @@ input LoginUserWithEmailInput {
 
 input LoginUserWithWalletInput {
   address: String!
+  network: String!
 }
 
 input RefreshTokenInput {
@@ -123,4 +124,5 @@ input RegisterUserWithEmailInput {
 input RegisterUserWithWalletInput {
   address: String!
   userName: String!
+  network: String!
 }
