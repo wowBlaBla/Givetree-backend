@@ -32,6 +32,13 @@ export class CollectionsController {
         return this.collectionsService.findAll(queries);
     }
 
+    @Post('get-collection')
+    findByOne(
+        @Body() queries
+    ) {
+        return this.collectionsService.findByOne(queries);
+    }
+
     @Post()
     create(
         @Body() createCollection: CreateCollectionDto
