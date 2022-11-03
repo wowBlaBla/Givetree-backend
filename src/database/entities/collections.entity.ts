@@ -36,7 +36,7 @@ export class Collections extends BaseEntity {
   @Property()
   name: string;
 
-  @Property()
+  @Property({ unique: true })
   pattern: string;
 
   @Property()
