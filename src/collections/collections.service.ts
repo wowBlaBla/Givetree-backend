@@ -14,6 +14,13 @@ interface Queries {
   network?: string;
 };
 
+interface FindArgs {
+  id?: number;
+  address?: string;
+  pattern?: string;
+  
+}
+
 @Injectable()
 export class CollectionsService {
   constructor(
@@ -51,10 +58,8 @@ export class CollectionsService {
     return collection;
   }
 
-  async findByOneAddress(address: string) {
-    const collection = await this.collectionRepository.findOne({
-      address: address
-    });
+  async findByOne(args: FindArgs) {
+    const collection = await this.collectionRepository.findOne(args);
     return collection;
   }
 
