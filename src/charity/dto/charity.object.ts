@@ -21,6 +21,9 @@ export class CharityObject {
   readonly businessNumber: string;
 
   @Field()
+  causes: string;
+
+  @Field()
   readonly createdAt: Date;
 
   @Field()
