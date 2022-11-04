@@ -4,6 +4,7 @@ import { CreateSaleInput } from './dto/create-sale.input';
 import { SalesService } from './sales.service';
 
 export interface Where {
+    network: string;
     collection: string;
     tokenId: string;
     seller: string;
@@ -38,6 +39,7 @@ export class SalesController {
     remove(
         @Body() where: Where
     ) {
+        console.log(where);
         return this.salesService.remove(where);
     }
 }
