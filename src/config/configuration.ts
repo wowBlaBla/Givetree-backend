@@ -1,6 +1,6 @@
 export default () => ({
   app: {
-    port: parseInt(process.env.PORT, 10) || 3000,
+    port: parseInt(process.env.APP_SERVER_PORT, 10) || 3000,
     env: process.env.APP_ENV || "dev",
     corsOrigin: process.env.CORS_FRONTEND_ORIGIN || "*"
   },
