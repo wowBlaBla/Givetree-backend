@@ -39,7 +39,6 @@ export class SalesController {
     remove(
         @Body() where: Where
     ) {
-        console.log(where);
         return this.salesService.remove(where);
     }
 }
