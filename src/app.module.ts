@@ -1,5 +1,5 @@
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { RequestMethod } from '@nestjs/common';
+import { RequestMethod } from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
 import { MikroOrmMiddleware, MikroOrmModule } from "@mikro-orm/nestjs";
 import {
@@ -14,15 +14,15 @@ import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
 import configuration from "./config/configuration";
 import { UsersModule } from "./users/users.module";
-import { SocialsController } from './socials/socials.controller';
-import { SocialsModule } from './socials/socials.module';
-import { CharityModule } from './charity/charity.module';
-import { CollectionsModule } from './collections/collections.module';
-import { SalesModule } from './sales/sales.module';
-import { DonationsModule } from './donations/donations.module';
-import { SentryModule } from './sentry/sentry.module';
-import * as Sentry from '@sentry/node';
-import '@sentry/tracing';
+import { SocialsController } from "./socials/socials.controller";
+import { SocialsModule } from "./socials/socials.module";
+import { CharityModule } from "./charity/charity.module";
+import { CollectionsModule } from "./collections/collections.module";
+import { SalesModule } from "./sales/sales.module";
+import { DonationsModule } from "./donations/donations.module";
+import { SentryModule } from "./sentry/sentry.module";
+import * as Sentry from "@sentry/node";
+import "@sentry/tracing";
 
 @Module({
   imports: [
@@ -30,13 +30,13 @@ import '@sentry/tracing';
       isGlobal: true,
       load: [configuration],
     }),
-    SentryModule.forRoot({
-      dsn: process.env.SENTRY_DNS,
-      environment: process.env.APP_ENV,
-      release: "givetree-backend@" + process.env.APP_COMMIT_SHA_SHORT,
-      tracesSampleRate: 1.0,
-      debug: false,
-    }),
+    // SentryModule.forRoot({
+    //   dsn: process.env.SENTRY_DNS,
+    //   environment: process.env.APP_ENV,
+    //   release: "givetree-backend@" + process.env.APP_COMMIT_SHA_SHORT,
+    //   tracesSampleRate: 1.0,
+    //   debug: false,
+    // }),
     MikroOrmModule.forRoot(),
     GraphQLModule.forRootAsync({
       imports: [ConfigService],
@@ -47,8 +47,8 @@ import '@sentry/tracing';
         cors: {
           origin: configService.get<string>("CORS_FRONTEND_ORIGIN"),
           credentials: true,
-        }
-      })
+        },
+      }),
     }),
     UsersModule,
     AuthModule,
@@ -57,7 +57,7 @@ import '@sentry/tracing';
     CollectionsModule,
     SalesModule,
     DonationsModule,
-    SentryModule,
+    // SentryModule,
   ],
   controllers: [AppController, SocialsController],
   providers: [AppService],
@@ -73,11 +73,11 @@ export class AppModule implements NestModule, OnModuleInit {
   // so they would fail to access contextual EM. by registering the middleware directly in AppModule, we can get
   // around this issue
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(Sentry.Handlers.requestHandler(), MikroOrmMiddleware).forRoutes(
-      {
-        path: '*',
+    consumer
+      .apply(Sentry.Handlers.requestHandler(), MikroOrmMiddleware)
+      .forRoutes({
+        path: "*",
         method: RequestMethod.ALL,
-      }
-    );
+      });
   }
 }
