@@ -16,6 +16,9 @@ export class CharityProperty extends BaseEntity {
   @Property({ nullable: true })
   businessNumber: string;
 
+  @Property({ nullable: true })
+  causes: string;
+
   @OneToOne(() => User)
   user: User;
 }
