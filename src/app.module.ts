@@ -27,13 +27,17 @@ import { DonationsModule } from './donations/donations.module';
       load: [configuration],
     }),
     MikroOrmModule.forRoot(),
-    GraphQLModule.forRoot({
-      installSubscriptionHandlers: true,
-      autoSchemaFile: "schema.gql",
-      cors: {
-        origin: "*",
-        credentials: true,
-      },
+    GraphQLModule.forRootAsync({
+      imports: [ConfigService],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        installSubscriptionHandlers: true,
+        autoSchemaFile: "schema.gql",
+        cors: {
+          origin: configService.get<string>("CORS_FRONTEND_ORIGIN"),
+          credentials: true,
+        }
+      })
     }),
     UsersModule,
     AuthModule,
