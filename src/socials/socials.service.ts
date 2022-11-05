@@ -4,6 +4,7 @@ import { Injectable } from "@nestjs/common";
 import { Socials } from "src/database/entities/socials.entity";
 import { CreateSocialDto } from "./dto/create-social.dto";
 import { UpdateSocialDto } from "./dto/update-social.dto";
+import { Controller, Get, HttpException } from '@nestjs/common';
 
 @Injectable()
 export class SocialsService {
@@ -29,6 +30,7 @@ export class SocialsService {
   }
 
   findAll() {
+    throw new HttpException({ message: 'Sample Error' }, 500);
     return `This action returns all socials`;
   }
 
