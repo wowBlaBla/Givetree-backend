@@ -28,13 +28,12 @@ export class SalesController {
         return this.salesService.findAll();
     }
 
-    @Get()
+    @Get('/seller')
     find(
         @Query('seller') seller: string
     ) {
         return this.salesService.find(seller);
     }
-
     @Delete()
     remove(
         @Body() where: Where
