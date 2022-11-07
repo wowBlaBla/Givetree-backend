@@ -1,16 +1,18 @@
 import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import * as AWS from "aws-sdk";
 import * as path from "path";
 
 @Injectable()
 export class S3Service {
   s3: AWS.S3;
+  config: ConfigService;
 
-  constructor() {
-    this.s3 = new AWS.S3({
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    });
+  constructor(
+    configService: ConfigService
+  ) {
+    this.s3 = new AWS.S3();
+    this.config = configService
   }
 
   async uploadFile(file: Express.Multer.File, id: string, dir?: string) {
@@ -23,7 +25,7 @@ export class S3Service {
     }-${now}${extension}`;
 
     const params: AWS.S3.PutObjectRequest = {
-      Bucket: process.env.AWS_S3_BUCKET,
+      Bucket: this.config.get<string>("cdn.s3Bucket"),
       Key: key,
       Body: buffer,
       ACL: "private",
@@ -36,7 +38,7 @@ export class S3Service {
 
       return {
         ...s3Response,
-        Location: `https://cdn.tst.givetree.xyz/${filename}`,
+        Location: `${this.config.get<string>("cdn.baseURL")}/${filename}`,
       };
     } catch (e) {
       console.log(e);

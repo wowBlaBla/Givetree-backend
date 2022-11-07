@@ -6,16 +6,16 @@ import { ConfigService } from "@nestjs/config";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-  const port = configService.get<number>("APP_SERVER_PORT") || 3000;
-  const app_env = configService.get<string>("APP_ENV") || "dev";
+  const port = configService.get<number>("app.port");
+  const app_env = configService.get<string>("app.env");
   const cors_frontend_origin =
-    configService.get<string>("CORS_FRONTEND_ORIGIN") || "*";
+    configService.get<string>("app.corsOrigin") || "*";
 
   app.enableCors({
     origin: cors_frontend_origin,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
-    credentials: true,
+    credentials: false,
     optionsSuccessStatus: 204,
   });
   app.setGlobalPrefix("api");
