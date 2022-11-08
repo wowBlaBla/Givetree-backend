@@ -4,6 +4,7 @@ import { CreateSaleInput } from './dto/create-sale.input';
 import { SalesService } from './sales.service';
 
 export interface Where {
+    network: string;
     collection: string;
     tokenId: string;
     seller: string;
@@ -27,13 +28,12 @@ export class SalesController {
         return this.salesService.findAll();
     }
 
-    @Get()
+    @Get('/seller')
     find(
         @Query('seller') seller: string
     ) {
         return this.salesService.find(seller);
     }
-
     @Delete()
     remove(
         @Body() where: Where
