@@ -36,6 +36,7 @@ export class AuthService {
     }
 
     const { password } = user;
+
     const match = await bcrypt.compare(pass, password);
     if (match) {
       return user;
@@ -62,7 +63,7 @@ export class AuthService {
 
   async createRefreshToken(user: Pick<User, "id">, ttl: number) {
     const expiration = new Date();
-    expiration.setTime(expiration.getTime() + ttl);
+    expiration.setTime(expiration.getTime() + ttl * 1000);
 
     const token = this.refreshTokenRepository.create({
       user,
@@ -79,7 +80,7 @@ export class AuthService {
     const token = await this.createRefreshToken(user, expiresIn);
     return await this.jwtService.signAsync({
       ...payload,
-      expiresIn,
+      expiresIn: 60 * 60 * 24 * 30,
       jwtId: String(token.id),
     });
   }
