@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Param,
+  Post,
   Put,
   Query,
   UnauthorizedException,
@@ -24,6 +26,7 @@ import { User } from "../database/entities/user.entity";
 import { UsersService } from "./users.service";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
 import { S3Service } from "src/services/s3.service";
+import { ResetPasswordDto } from "./dto/reset-password.dto";
 
 interface FindAllArgs {
   type?: string;
@@ -93,6 +96,33 @@ export class UsersController {
       throw new UnauthorizedException(`User already exists.`);
     }
     const res = await this.usersService.updateAccounts(user.id, updateUserDto);
+    return res && new UserDto(res);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("reset-password")
+  @ApiCreatedResponse({
+    description: "Password has been updated.",
+    type: UserDto,
+  })
+  async resetPassword(
+    @CurrentUser() user: User,
+    @Body()
+    resetPasswordDto: ResetPasswordDto,
+  ) {
+    if (!resetPasswordDto.currentPassword || !resetPasswordDto.newPassword) {
+      throw new BadRequestException(`Passwords must be provided.`);
+    }
+
+    const res = await this.usersService.resetPassword(
+      user.id,
+      resetPasswordDto,
+    );
+
+    if (!res) {
+      throw new BadRequestException(`Current password is not matching`);
+    }
+
     return res && new UserDto(res);
   }
 
