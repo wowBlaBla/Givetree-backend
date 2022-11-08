@@ -163,6 +163,7 @@ export class UsersService {
       await this.walletAddressesService.removeByUserIdAndType(
         id,
         walletAddress.type,
+        walletAddress.network,
       );
 
       await this.walletAddressesService.create(id, walletAddress);
