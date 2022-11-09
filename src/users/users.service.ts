@@ -137,7 +137,7 @@ export class UsersService {
       }
     }
 
-    this.usersRepository.flush();
+    await this.usersRepository.flush();
     const result = await this.findOne({
       id: user.id,
       relations: ["charityProperty", "walletAddresses", "socials"],
@@ -167,7 +167,7 @@ export class UsersService {
       await this.walletAddressesService.create(id, walletAddress);
     }
 
-    this.usersRepository.flush();
+    await this.usersRepository.flush();
     const result = await this.findOne({
       id: user.id,
       relations: ["charityProperty", "walletAddresses", "socials"],
@@ -185,7 +185,7 @@ export class UsersService {
     if (match) {
       const hashed = await bcrypt.hash(resetPasswordDto.newPassword, 10);
       this.usersRepository.assign(user, { password: hashed });
-      this.usersRepository.flush();
+      await this.usersRepository.flush();
 
       return user;
     } else {
