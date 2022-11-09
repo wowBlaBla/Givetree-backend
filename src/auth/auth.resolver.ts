@@ -48,6 +48,8 @@ export class AuthResolver {
     const user = await this.authService.validateUserWithWallet(
       input.address,
       input.network,
+      input.nonce,
+      input.signature,
     );
 
     if (!user) {
@@ -113,6 +115,8 @@ export class AuthResolver {
     const user = await this.authService.registerWithWallet(
       input.address,
       input.network,
+      input.nonce,
+      input.signature
     );
 
     if (!user) {

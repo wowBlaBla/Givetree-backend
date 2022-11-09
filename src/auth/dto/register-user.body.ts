@@ -17,4 +17,10 @@ export class RegisterUserWithWalletBody {
 
   @ApiProperty()
   network: string;
+
+  @ApiProperty()
+  signature: string;
+
+  @ApiProperty()
+  nonce: string;
 }

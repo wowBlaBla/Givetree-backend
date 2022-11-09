@@ -13,6 +13,8 @@ import { UsersService } from "../users/users.service";
 import { RefreshToken } from "../database/entities/refresh-token.entity";
 import { WalletAddressesService } from "src/walletAddresses/wallet-addresses.service";
 import { generate as generateRandomString } from "randomstring";
+import { NoncesService } from "src/nonces/nonces.service";
+import { ValidateSignInput } from "src/nonces/dto/validate-sign.input";
 
 @Injectable()
 export class AuthService {
@@ -20,6 +22,7 @@ export class AuthService {
     private usersService: UsersService,
     private walletAddressesService: WalletAddressesService,
     private jwtService: JwtService,
+    private nonceService: NoncesService,
     @InjectRepository(RefreshToken)
     private refreshTokenRepository: EntityRepository<RefreshToken>,
     private httpService: HttpService,
@@ -51,7 +54,16 @@ export class AuthService {
     }
   }
 
-  async validateUserWithWallet(address: string, network: string) {
+  async validateUserWithWallet(address: string, network: string, nonce: string, signature: string) {
+    const validationInput:ValidateSignInput = {
+      walletAddress: address,
+      signType: "signin",
+      nonce,
+      signature
+    }
+    const verified = await this.nonceService.validateSignature(0, validationInput);
+    if (!verified) return null;
+
     const user = await this.usersService.findOne({
       walletAddress: { address, network, type: "auth" },
       relations: ["charityProperty", "walletAddresses", "socials"],
@@ -158,9 +170,19 @@ export class AuthService {
     return user;
   }
 
-  async registerWithWallet(address: string, network: string) {
+  async registerWithWallet(address: string, network: string, nonce: string, signature: string) {
+
+    const validationInput:ValidateSignInput = {
+      walletAddress: address,
+      signType: "register",
+      nonce,
+      signature
+    }
+    const verified = await this.nonceService.validateSignature(0, validationInput);
+    if (!verified) return null;
+    
     const walletAddress = await this.usersService.findOne({
-      walletAddress: { address, type: "auth", network },
+      walletAddress: { address, network },
     });
     if (walletAddress) {
       return null;

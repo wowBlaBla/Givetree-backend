@@ -21,6 +21,7 @@ import { CollectionsModule } from "./collections/collections.module";
 import { SalesModule } from "./sales/sales.module";
 import { DonationsModule } from "./donations/donations.module";
 import { SentryModule } from "./sentry/sentry.module";
+import { NoncesModule } from './nonces/nonces.module';
 import * as Sentry from "@sentry/node";
 import "@sentry/tracing";
 
@@ -57,6 +58,7 @@ import "@sentry/tracing";
     CollectionsModule,
     SalesModule,
     DonationsModule,
+    NoncesModule,
     // SentryModule,
   ],
   controllers: [AppController, SocialsController],
