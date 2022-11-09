@@ -7,6 +7,7 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { UsersService } from 'src/users/users.service';
 import { ValidateSignInput } from './dto/validate-sign.input';
 import * as sigUtil from "eth-sig-util";
+import { User } from '@sentry/node';
 
 @Injectable()
 export class NoncesService {
@@ -19,11 +20,14 @@ export class NoncesService {
 
   async create(userId: number, createNonceInput: CreateNonceInput) {
     const { walletAddress, signType } = createNonceInput;
-    const user = await this.usersService.findOne({
-      walletAddress: { address: walletAddress, network: "ethereum", type: signType == "switch" ? "donation" : "auth" },
-      relations: ["charityProperty", "walletAddresses", "socials"],
-    });
-    if (!user) return null;
+    let user: any;
+    if (signType != "register") {
+      user = await this.usersService.findOne({
+        walletAddress: { address: walletAddress, type: signType == "switch" ? "donation" : "auth" },
+        relations: ["charityProperty", "walletAddresses", "socials"],
+      });
+      if (!user) return null;
+    }
 
     const exist = await this.nonceRepository.findOne(createNonceInput);
     var randomstring = require("randomstring");
@@ -33,15 +37,19 @@ export class NoncesService {
         charset : "hex"
       });
       nonce = nonce.slice(0,8) + '-' + nonce.slice(9, 13) + '-' + nonce.slice(13, 17) + '-' + nonce.slice(17, 21) + '-' + nonce.slice(-12);
-      const inputs = {
+      let inputs: Object = {
         nonce,
-        signer: {
-          id: userId,
-        },
         signType,
         walletAddress
       };
 
+      if (+user?.id > 0) inputs = {
+        ...inputs,
+        signer: {
+          id: +user?.id
+        }
+      };
+  
       const record = this.nonceRepository.create(inputs);
       await this.nonceRepository.persistAndFlush(record);
 
@@ -52,13 +60,20 @@ export class NoncesService {
 
   async validateSignature(userId: number, validateSignInput: ValidateSignInput) {
     const { walletAddress, signType, signature } = validateSignInput;
-    const exist = await this.nonceRepository.findOne({
+    
+    let filter:Object = {
       walletAddress,
+      signType
+    };
+
+    if (userId > 0) filter = {
+      ...filter,
       signer: {
         id: userId
-      },
-      signType
-    });
+      }
+    };
+
+    const exist = await this.nonceRepository.findOne(filter);
 
     if (exist) {
       const message = `Welcome to GiveTree!\n`+

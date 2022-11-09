@@ -9,5 +9,6 @@ import { NoncesController } from './nonces.controller';
   imports: [MikroOrmModule.forFeature([Nonces]), UsersModule],
   providers: [NoncesService],
   controllers: [NoncesController],
+  exports: [NoncesService],
 })
 export class NoncesModule {}

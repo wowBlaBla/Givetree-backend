@@ -1,7 +1,5 @@
 import { Controller, Delete, Get, Param, Post, UseGuards, Body } from '@nestjs/common';
-import { CurrentUser } from 'src/auth/decorator/current-user.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { User } from 'src/database/entities/user.entity';
 import { CreateNonceInput } from './dto/create-nonce.input';
 import { ValidateSignInput } from './dto/validate-sign.input';
 import { NoncesService } from './nonces.service';
@@ -13,22 +11,20 @@ export class NoncesController {
         private readonly nonceService: NoncesService
     ) {}
 
-    @UseGuards(JwtAuthGuard)
-    @Post()
+    @Post(':id')
     async create(
-        @CurrentUser() user: User,
+        @Param('id') id: string,
         @Body() createNonceInput: CreateNonceInput
     ) {
-        return await this.nonceService.create(+user.id, createNonceInput);
+        return await this.nonceService.create(+id, createNonceInput);
     }
 
-    @UseGuards(JwtAuthGuard)
-    @Post('/validate-signature')
+    @Post('/validate-signature/:id')
     async validateSignature(
-        @CurrentUser() user: User,
+        @Param('id') id: string,
         @Body() validateSignInput: ValidateSignInput
     ) {
-        return await this.nonceService.validateSignature(+user.id, validateSignInput);
+        return await this.nonceService.validateSignature(+id, validateSignInput);
     }
     @Get()
     findAll() {
