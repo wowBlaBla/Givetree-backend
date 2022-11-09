@@ -16,8 +16,5 @@ export class RegisterUserWithWalletBody {
   address: string;
 
   @ApiProperty()
-  username: string;
-
-  @ApiProperty()
   network: string;
 }

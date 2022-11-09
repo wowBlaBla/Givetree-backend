@@ -112,7 +112,6 @@ export class AuthResolver {
   async registerWallet(@Args("input") input: RegisterUserWithWalletInput) {
     const user = await this.authService.registerWithWallet(
       input.address,
-      input.userName,
       input.network,
     );
 
