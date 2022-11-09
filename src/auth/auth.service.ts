@@ -8,6 +8,7 @@ import { User } from "../database/entities/user.entity";
 import { UsersService } from "../users/users.service";
 import { RefreshToken } from "../database/entities/refresh-token.entity";
 import { WalletAddressesService } from "src/walletAddresses/wallet-addresses.service";
+import { generate as generateRandomString } from "randomstring";
 
 @Injectable()
 export class AuthService {
@@ -152,12 +153,7 @@ export class AuthService {
     return user;
   }
 
-  async registerWithWallet(address: string, userName: string, network: string) {
-    let user = await this.usersService.findOne({ userName });
-    if (user) {
-      return null;
-    }
-
+  async registerWithWallet(address: string, network: string) {
     const walletAddress = await this.usersService.findOne({
       walletAddress: { address, type: "auth", network },
     });
@@ -165,7 +161,14 @@ export class AuthService {
       return null;
     }
 
-    user = await this.usersService.create({
+    const userName = generateRandomString({
+      length: 7,
+      charset: "alphanumeric",
+      readable: true,
+      capitalization: "lowercase",
+    });
+
+    const user = await this.usersService.create({
       email: null,
       userName,
       password: null,
