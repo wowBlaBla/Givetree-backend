@@ -13,6 +13,7 @@ import { Post } from "./post.entity";
 import { WalletAddress } from "./wallet-address.entity";
 import { CharityProperty } from "./charity-property.entity";
 import { Socials } from "./socials.entity";
+import { Nonces } from "./nonces.entity";
 
 export enum AccountType {
   STANDARD = "standard",
@@ -79,4 +80,9 @@ export class User extends BaseEntity {
     cascade: [Cascade.REMOVE],
   })
   refreshTokens = new Collection<RefreshToken>(this);
+
+  @OneToMany(() => Nonces, (nonce) => nonce.signer, {
+    cascade: [Cascade.REMOVE],
+  })
+  nonces = new Collection<Nonces>(this);
 }
