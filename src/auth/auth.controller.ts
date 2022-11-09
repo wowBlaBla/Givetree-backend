@@ -22,6 +22,8 @@ import {
   RegisterUserWithWalletBody,
 } from "./dto/register-user.body";
 import { RegisterUserResponse } from "./dto/register-user.response";
+import { ValidateRecaptchaBody } from "./dto/validate-recaptcha.body";
+import { ValidateRecaptchaResponse } from "./dto/validate-recaptcha.response";
 
 @Controller("auth")
 export class AuthController {
@@ -181,6 +183,27 @@ export class AuthController {
     payload.user = new UserDto(user);
     payload.accessToken = accessToken;
     payload.refreshToken = refreshToken;
+
+    return payload;
+  }
+
+  @Post("validate-recaptcha")
+  @ApiCreatedResponse({
+    description: "Returend token is correct",
+    type: ValidateRecaptchaResponse,
+  })
+  async validateRecaptcha(
+    @Body() validateRecaptchaInput: ValidateRecaptchaBody,
+  ) {
+    const res = await this.authService.validateRecaptcha(
+      validateRecaptchaInput.token,
+    );
+
+    const payload = new ValidateRecaptchaResponse();
+    payload.success = res.success;
+    payload.challengeTs = res.challenge_ts;
+    payload.hostname = res.hostname;
+    payload.errorCodes = res["error-codes"];
 
     return payload;
   }
