@@ -158,19 +158,12 @@ export class AuthController {
     type: RegisterUserResponse,
   })
   async registerWithWallet(@Body() registerInput: RegisterUserWithWalletBody) {
-    if (
-      !registerInput.address ||
-      !registerInput.username ||
-      !registerInput.network
-    ) {
-      throw new BadRequestException(
-        "Username and wallet address shouldn't be empty",
-      );
+    if (!registerInput.address || !registerInput.network) {
+      throw new BadRequestException("Wallet address shouldn't be empty");
     }
 
     const user = await this.authService.registerWithWallet(
       registerInput.address,
-      registerInput.username,
       registerInput.network,
     );
 
