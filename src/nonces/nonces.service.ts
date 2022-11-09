@@ -8,6 +8,7 @@ import { UsersService } from 'src/users/users.service';
 import { ValidateSignInput } from './dto/validate-sign.input';
 import * as sigUtil from "eth-sig-util";
 import { User } from '@sentry/node';
+import { CreateWalletAddressDto } from 'src/walletAddresses/dto/create-wallet-address.dto';
 
 @Injectable()
 export class NoncesService {
@@ -20,14 +21,24 @@ export class NoncesService {
 
   async create(userId: number, createNonceInput: CreateNonceInput) {
     const { walletAddress, signType } = createNonceInput;
-    let user: any;
+
+    let filter: CreateWalletAddressDto = {
+      address: walletAddress
+    };
     if (signType != "register") {
-      user = await this.usersService.findOne({
-        walletAddress: { address: walletAddress, type: signType == "switch" ? "donation" : "auth" },
-        relations: ["charityProperty", "walletAddresses", "socials"],
-      });
-      if (!user) return null;
-    }
+      filter = {
+        ...filter,
+        type: signType == "signin" ? "auth" : "donation"
+      }
+    };
+
+    let user: any;
+    user = await this.usersService.findOne({
+      walletAddress: filter,
+      relations: ["charityProperty", "walletAddresses", "socials"],
+    });
+    if (user && signType == "register") return null;
+    else if (!user && signType != "register") return null;
 
     const exist = await this.nonceRepository.findOne(createNonceInput);
     var randomstring = require("randomstring");
