@@ -1,5 +1,5 @@
 import { MikroOrmModule } from "@mikro-orm/nestjs";
-import { Module } from "@nestjs/common";
+import { HttpModule, Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
@@ -26,6 +26,7 @@ import { LocalStrategy } from "./strategies/local.strategy";
     }),
     UsersModule,
     WalletAddressesModule,
+    HttpModule,
     MikroOrmModule.forFeature([RefreshToken]),
   ],
   providers: [AuthService, AuthResolver, LocalStrategy, JwtStrategy],

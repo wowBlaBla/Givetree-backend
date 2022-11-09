@@ -1,6 +1,10 @@
 import { EntityRepository } from "@mikro-orm/core";
 import { InjectRepository } from "@mikro-orm/nestjs";
-import { Injectable, UnprocessableEntityException } from "@nestjs/common";
+import {
+  HttpService,
+  Injectable,
+  UnprocessableEntityException,
+} from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { TokenExpiredError } from "jsonwebtoken";
@@ -18,6 +22,7 @@ export class AuthService {
     private jwtService: JwtService,
     @InjectRepository(RefreshToken)
     private refreshTokenRepository: EntityRepository<RefreshToken>,
+    private httpService: HttpService,
   ) {}
 
   async validateUserWithEmail(email: string, pass: string) {
@@ -180,5 +185,24 @@ export class AuthService {
     });
 
     return user;
+  }
+
+  async validateRecaptcha(token: string) {
+    const requestBody = new URLSearchParams({
+      secret: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
+      response: token,
+    });
+
+    const res = await this.httpService.axiosRef.post(
+      "https://www.google.com/recaptcha/api/siteverify",
+      requestBody,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      },
+    );
+
+    return res.data;
   }
 }
