@@ -5,6 +5,7 @@ import {
   Request,
   UseGuards,
   UnauthorizedException,
+  BadRequestException,
 } from "@nestjs/common";
 import { ApiBody, ApiCreatedResponse, ApiOkResponse } from "@nestjs/swagger";
 import { UserDto } from "../users/dto/user.dto";
@@ -21,7 +22,6 @@ import {
   RegisterUserWithWalletBody,
 } from "./dto/register-user.body";
 import { RegisterUserResponse } from "./dto/register-user.response";
-import { LocalAuthGuard } from "./guards/local-auth.guard";
 
 @Controller("auth")
 export class AuthController {
@@ -33,12 +33,20 @@ export class AuthController {
     type: LoginUserResponse,
   })
   async loginEmail(@Body() loginInput: LoginUserWithEmailBody) {
+    if (!loginInput.email || !loginInput.password) {
+      throw new BadRequestException(
+        "Username(email) and password shouldn't be empty",
+      );
+    }
+
     const user = await this.authService.validateUserWithEmail(
       loginInput.email,
       loginInput.password,
     );
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(
+        "Email or username or password is incorrect",
+      );
     }
 
     const accessToken = await this.authService.generateAccessToken(user);
@@ -60,13 +68,17 @@ export class AuthController {
     type: LoginUserResponse,
   })
   async loginWallet(@Body() loginInput: LoginUserWithWalletBody) {
+    if (!loginInput.address || !loginInput.network) {
+      throw new BadRequestException("Wallet address shouldn't be empty");
+    }
+
     const user = await this.authService.validateUserWithWallet(
       loginInput.address,
       loginInput.network,
     );
 
     if (!user) {
-      throw new UnauthorizedException(`Wallet address incorrect.`);
+      throw new UnauthorizedException(`User doesn't exist.`);
     }
 
     const accessToken = await this.authService.generateAccessToken(user);
@@ -106,6 +118,16 @@ export class AuthController {
     type: RegisterUserResponse,
   })
   async registerWithEmail(@Body() registerInput: RegisterUserWithEmailBody) {
+    if (
+      !registerInput.username ||
+      !registerInput.email ||
+      !registerInput.password
+    ) {
+      throw new BadRequestException(
+        "Username, email and password shouldn't be empty",
+      );
+    }
+
     const user = await this.authService.registerWithEmail(
       registerInput.email,
       registerInput.username,
@@ -136,6 +158,16 @@ export class AuthController {
     type: RegisterUserResponse,
   })
   async registerWithWallet(@Body() registerInput: RegisterUserWithWalletBody) {
+    if (
+      !registerInput.address ||
+      !registerInput.username ||
+      !registerInput.network
+    ) {
+      throw new BadRequestException(
+        "Username and wallet address shouldn't be empty",
+      );
+    }
+
     const user = await this.authService.registerWithWallet(
       registerInput.address,
       registerInput.username,

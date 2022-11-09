@@ -7,7 +7,8 @@ import { CharityService } from "src/charity/charity.service";
 import { WalletAddressesService } from "src/walletAddresses/wallet-addresses.service";
 import { CreateWalletAddressDto } from "src/walletAddresses/dto/create-wallet-address.dto";
 import { SocialsService } from "src/socials/socials.service";
-
+import { ResetPasswordDto } from "./dto/reset-password.dto";
+import * as bcrypt from "bcrypt";
 export interface FindAllArgs {
   relations?: string[];
   type?: string;
@@ -72,11 +73,8 @@ export class UsersService {
       );
     } else if (postId) {
       return this.usersRepository.findOne({ posts: { id: postId } }, relations);
-    } else {
-      throw new Error(
-        "One of ID, email, walletAddressId or post ID must be provided.",
-      );
     }
+    return null;
   }
 
   async findEither(
@@ -163,6 +161,7 @@ export class UsersService {
       await this.walletAddressesService.removeByUserIdAndType(
         id,
         walletAddress.type,
+        walletAddress.network,
       );
 
       await this.walletAddressesService.create(id, walletAddress);
@@ -174,6 +173,24 @@ export class UsersService {
       relations: ["charityProperty", "walletAddresses", "socials"],
     });
     return result;
+  }
+
+  async resetPassword(id: number, resetPasswordDto: ResetPasswordDto) {
+    const user = await this.usersRepository.findOne({ id: id });
+
+    const match = await bcrypt.compare(
+      resetPasswordDto.currentPassword,
+      user.password,
+    );
+    if (match) {
+      const hashed = await bcrypt.hash(resetPasswordDto.newPassword, 10);
+      this.usersRepository.assign(user, { password: hashed });
+      this.usersRepository.flush();
+
+      return user;
+    } else {
+      return null;
+    }
   }
 
   async remove(id: number) {

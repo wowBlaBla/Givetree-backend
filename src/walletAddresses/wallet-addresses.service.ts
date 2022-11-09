@@ -81,9 +81,10 @@ export class WalletAddressesService {
     return true;
   }
 
-  async removeByUserIdAndType(userId: number, type: string) {
+  async removeByUserIdAndType(userId: number, type: string, network: string) {
     return this.walletAddressesRepository.nativeDelete({
       type,
+      network,
       user: { id: userId },
     });
   }
