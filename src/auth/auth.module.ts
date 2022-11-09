@@ -1,5 +1,5 @@
 import { MikroOrmModule } from "@mikro-orm/nestjs";
-import { Module } from "@nestjs/common";
+import { HttpModule, Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
@@ -28,6 +28,7 @@ import { NoncesModule } from "src/nonces/nonces.module";
     UsersModule,
     WalletAddressesModule,
     NoncesModule,
+    HttpModule,
     MikroOrmModule.forFeature([RefreshToken]),
   ],
   providers: [AuthService, AuthResolver, LocalStrategy, JwtStrategy],
