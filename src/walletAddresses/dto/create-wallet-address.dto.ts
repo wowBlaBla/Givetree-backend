@@ -5,8 +5,8 @@ export class CreateWalletAddressDto {
   readonly address: string;
 
   @ApiProperty()
-  readonly network: string;
+  readonly network?: string;
 
   @ApiProperty()
-  readonly type: string;
+  readonly type?: string;
 }

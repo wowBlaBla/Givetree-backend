@@ -11,6 +11,7 @@ import { AuthService } from "./auth.service";
 import { RefreshToken } from "../database/entities/refresh-token.entity";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 import { LocalStrategy } from "./strategies/local.strategy";
+import { NoncesModule } from "src/nonces/nonces.module";
 
 @Module({
   controllers: [AuthController],
@@ -26,6 +27,7 @@ import { LocalStrategy } from "./strategies/local.strategy";
     }),
     UsersModule,
     WalletAddressesModule,
+    NoncesModule,
     MikroOrmModule.forFeature([RefreshToken]),
   ],
   providers: [AuthService, AuthResolver, LocalStrategy, JwtStrategy],

@@ -109,6 +109,8 @@ input LoginUserWithEmailInput {
 input LoginUserWithWalletInput {
   address: String!
   network: String!
+  nonce: String!
+  signature: String!
 }
 
 input RefreshTokenInput {
@@ -125,4 +127,6 @@ input RegisterUserWithWalletInput {
   address: String!
   userName: String!
   network: String!
+  nonce: String!
+  signature: String!
 }

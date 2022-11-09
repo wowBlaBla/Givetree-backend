@@ -14,4 +14,10 @@ export class LoginUserWithWalletBody {
 
   @ApiProperty()
   network: string;
+
+  @ApiProperty()
+  nonce: string;
+
+  @ApiProperty()
+  signature: string;
 }

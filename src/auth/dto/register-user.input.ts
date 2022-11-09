@@ -22,4 +22,10 @@ export class RegisterUserWithWalletInput {
 
   @Field()
   network: string;
+
+  @Field()
+  nonce: string;
+
+  @Field()
+  signature: string;
 }

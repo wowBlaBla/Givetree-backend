@@ -75,6 +75,8 @@ export class AuthController {
     const user = await this.authService.validateUserWithWallet(
       loginInput.address,
       loginInput.network,
+      loginInput.nonce,
+      loginInput.signature
     );
 
     if (!user) {
@@ -165,6 +167,8 @@ export class AuthController {
     const user = await this.authService.registerWithWallet(
       registerInput.address,
       registerInput.network,
+      registerInput.nonce,
+      registerInput.signature
     );
 
     if (!user) {
