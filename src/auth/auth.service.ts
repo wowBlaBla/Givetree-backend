@@ -14,7 +14,7 @@ import { RefreshToken } from "../database/entities/refresh-token.entity";
 import { WalletAddressesService } from "src/walletAddresses/wallet-addresses.service";
 import { generate as generateRandomString } from "randomstring";
 import { NoncesService } from "src/nonces/nonces.service";
-import { ValidateSignInput } from "src/nonces/dto/validate-sign.input";
+import * as sigUtil from "@metamask/eth-sig-util";
 
 @Injectable()
 export class AuthService {
@@ -54,24 +54,21 @@ export class AuthService {
     }
   }
 
-  async validateUserWithWallet(address: string, network: string, nonce: string, signature: string) {
-    const validationInput:ValidateSignInput = {
-      walletAddress: address,
-      signType: "signin",
-      nonce,
-      signature
-    }
-    const verified = await this.nonceService.validateSignature(0, validationInput);
-    if (!verified) return null;
-
+  async validateUserWithWallet(address: string, network: string, signature: string, type:string) {
+    
     const user = await this.usersService.findOne({
-      walletAddress: { address, network, type: "auth" },
-      relations: ["charityProperty", "walletAddresses", "socials"],
+      walletAddress: { address, network, type },
     });
-    if (user) {
-      return user;
-    }
-    return null;
+    if (!user) return null;
+    
+    const message = `I am signing my one-time nonce: ${user.nonce}`;
+    const verifiedAddress = await sigUtil.recoverPersonalSignature({ data: message, signature });
+    const newNonce = Math.floor(Math.random() * 1000000);
+
+    await this.usersService.update(+user.id, { nonce: newNonce });
+    if (verifiedAddress.toLowerCase() !== address.toLowerCase()) return null;
+    
+    return user;
   }
 
   async generateAccessToken(user: Pick<User, "id">) {
@@ -165,28 +162,26 @@ export class AuthService {
       email,
       userName,
       password: hashed,
+      nonce: Math.floor(Math.random() * 1000000)
     });
 
     return user;
   }
 
   async registerWithWallet(address: string, network: string, nonce: string, signature: string) {
-
-    const validationInput:ValidateSignInput = {
-      walletAddress: address,
-      signType: "register",
-      nonce,
-      signature
-    }
-    const verified = await this.nonceService.validateSignature(0, validationInput);
-    if (!verified) return null;
     
     const walletAddress = await this.usersService.findOne({
       walletAddress: { address, network },
     });
+    
     if (walletAddress) {
       return null;
     }
+    
+    const message = `I am signing my one-time nonce: ${nonce}`;
+    const verifiedAddress = await sigUtil.recoverPersonalSignature({ data: message, signature });
+    if (verifiedAddress.toLowerCase() !== address.toLowerCase()) return null;
+    
 
     const userName = generateRandomString({
       length: 7,
@@ -199,6 +194,7 @@ export class AuthService {
       email: null,
       userName,
       password: null,
+      nonce: Math.floor(Math.random() * 1000000)
     });
     await this.walletAddressesService.create(user.id, {
       address,
@@ -226,5 +222,13 @@ export class AuthService {
     );
 
     return res.data;
+  }
+
+  async checkWalletExist(address: string, network: string, type: string) {
+    const walletAddress = await this.usersService.findOne({
+      walletAddress: { address, network, type },
+    });
+
+    return { nonce: walletAddress?.nonce };
   }
 }

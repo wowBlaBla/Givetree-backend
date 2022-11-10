@@ -60,6 +60,9 @@ export class User extends BaseEntity {
   @Property({ nullable: true })
   banner: string;
 
+  @Property({ default: 0 })
+  nonce: number;
+
   @OneToMany(() => Post, (post) => post.author, { cascade: [Cascade.REMOVE] })
   posts = new Collection<Post>(this);
 
