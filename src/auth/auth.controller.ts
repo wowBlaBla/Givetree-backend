@@ -8,8 +8,12 @@ import {
   BadRequestException,
 } from "@nestjs/common";
 import { ApiBody, ApiCreatedResponse, ApiOkResponse } from "@nestjs/swagger";
+import { User } from "src/database/entities/user.entity";
 import { UserDto } from "../users/dto/user.dto";
 import { AuthService } from "./auth.service";
+import { CurrentUser } from "./decorator/current-user.decorator";
+import { CheckWalletBody } from "./dto/check-wallet.body";
+import { CheckWalletResponse } from "./dto/check-wallet.responsse";
 import {
   LoginUserWithEmailBody,
   LoginUserWithWalletBody,
@@ -22,8 +26,10 @@ import {
   RegisterUserWithWalletBody,
 } from "./dto/register-user.body";
 import { RegisterUserResponse } from "./dto/register-user.response";
+import { ValidateDonationWalletBody } from "./dto/validate-donation.body";
 import { ValidateRecaptchaBody } from "./dto/validate-recaptcha.body";
 import { ValidateRecaptchaResponse } from "./dto/validate-recaptcha.response";
+import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 
 @Controller("auth")
 export class AuthController {
@@ -63,7 +69,7 @@ export class AuthController {
     payload.refreshToken = refreshToken;
     return payload;
   }
-
+  
   @Post("login-wallet")
   @ApiOkResponse({
     description: "User has been logged in.",
@@ -77,8 +83,8 @@ export class AuthController {
     const user = await this.authService.validateUserWithWallet(
       loginInput.address,
       loginInput.network,
-      loginInput.nonce,
-      loginInput.signature
+      loginInput.signature,
+      "auth"
     );
 
     if (!user) {
@@ -209,6 +215,37 @@ export class AuthController {
     payload.hostname = res.hostname;
     payload.errorCodes = res["error-codes"];
 
+    return payload;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("validate-donation-wallet")
+  async validateDonationWallet(
+    @CurrentUser() user: User,
+    @Body() validateDonationWalletInput: ValidateDonationWalletBody
+  ) {
+    const { address, network, signature } = validateDonationWalletInput;
+    const result = await this.authService.validateUserWithWallet(address, network, signature, "donation");
+    if (result.id == user.id) return result;
+    else return null;
+  }
+
+  @Post("check-wallet")
+  @ApiCreatedResponse({
+    description: "Returend token is correct",
+    type: CheckWalletResponse,
+  })
+  async checkWallet(
+    @Body() checkWalletInput: CheckWalletBody
+  ) {
+    const res = await this.authService.checkWalletExist(
+      checkWalletInput.address,
+      checkWalletInput.network,
+      checkWalletInput.type
+    );
+
+    const payload = new CheckWalletResponse();
+    payload.nonce = res.nonce;
     return payload;
   }
 }
