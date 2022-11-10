@@ -8,11 +8,9 @@ export class S3Service {
   s3: AWS.S3;
   config: ConfigService;
 
-  constructor(
-    configService: ConfigService
-  ) {
+  constructor(configService: ConfigService) {
     this.s3 = new AWS.S3();
-    this.config = configService
+    this.config = configService;
   }
 
   async uploadFile(file: Express.Multer.File, id: string, dir?: string) {

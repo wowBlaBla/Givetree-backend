@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-export class CheckWalletBody {
+export class VerifyEmailBody {
   @ApiProperty()
-  address: string;
+  token: string;
 }

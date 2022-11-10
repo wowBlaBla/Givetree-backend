@@ -20,7 +20,4 @@ export class RegisterUserWithWalletBody {
 
   @ApiProperty()
   signature: string;
-
-  @ApiProperty()
-  nonce: string;
 }
