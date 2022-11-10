@@ -1,8 +1,12 @@
 import { EntityRepository } from "@mikro-orm/core";
 import { InjectRepository } from "@mikro-orm/nestjs";
 import {
+  BadRequestException,
+  ConflictException,
   HttpService,
   Injectable,
+  NotAcceptableException,
+  NotFoundException,
   UnprocessableEntityException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
@@ -11,10 +15,11 @@ import { TokenExpiredError } from "jsonwebtoken";
 import { User } from "../database/entities/user.entity";
 import { UsersService } from "../users/users.service";
 import { RefreshToken } from "../database/entities/refresh-token.entity";
+import { Nonce } from "../database/entities/nonce.entity";
 import { WalletAddressesService } from "src/walletAddresses/wallet-addresses.service";
-import { generate as generateRandomString } from "randomstring";
-import { NoncesService } from "src/nonces/nonces.service";
-import * as sigUtil from "@metamask/eth-sig-util";
+import { generate as generateRandom } from "randomstring";
+import { MailService } from "src/services/mail.service";
+import { EtherUtilService } from "src/services/ether-util.service";
 
 @Injectable()
 export class AuthService {
@@ -22,53 +27,54 @@ export class AuthService {
     private usersService: UsersService,
     private walletAddressesService: WalletAddressesService,
     private jwtService: JwtService,
-    private nonceService: NoncesService,
     @InjectRepository(RefreshToken)
     private refreshTokenRepository: EntityRepository<RefreshToken>,
+    @InjectRepository(Nonce)
+    private nonceRepository: EntityRepository<Nonce>,
     private httpService: HttpService,
+    private mailService: MailService,
+    private etherUtilService: EtherUtilService,
   ) {}
 
-  async validateUserWithEmail(email: string, pass: string) {
-    let user = await this.usersService.findOne({
-      email,
-      relations: ["charityProperty", "walletAddresses", "socials"],
-    });
-
-    if (!user) {
-      user = await this.usersService.findOne({
-        userName: email,
+  async validateUserWithEmail(emailOrUsername: string, pass: string) {
+    try {
+      const user = await this.usersService.findOneEither({
+        email: emailOrUsername,
+        userName: emailOrUsername,
+        relations: ["charityProperty", "walletAddresses", "socials"],
       });
-    }
 
-    if (!user) {
-      return null;
-    }
+      if (!user) {
+        throw new NotFoundException("User doens't exists");
+      }
 
-    const { password } = user;
+      const { password } = user;
 
-    const match = await bcrypt.compare(pass, password);
-    if (match) {
-      return user;
-    } else {
-      return null;
+      const match = await bcrypt.compare(pass, password);
+      if (match) {
+        return user;
+      } else {
+        throw new BadRequestException("Password is incorrect");
+      }
+    } catch (err) {
+      throw err;
     }
   }
 
-  async validateUserWithWallet(address: string, network: string, signature: string, type:string) {
-    
-    const user = await this.usersService.findOne({
-      walletAddress: { address, network, type },
-    });
-    if (!user) return null;
-    
-    const message = `I am signing my one-time nonce: ${user.nonce}`;
-    const verifiedAddress = await sigUtil.recoverPersonalSignature({ data: message, signature });
-    const newNonce = Math.floor(Math.random() * 1000000);
+  async validateUserWithWallet(address: string, network: string, type: string) {
+    try {
+      const user = await this.usersService.findOne({
+        walletAddress: { address, network, type },
+      });
 
-    await this.usersService.update(+user.id, { nonce: newNonce });
-    if (verifiedAddress.toLowerCase() !== address.toLowerCase()) return null;
-    
-    return user;
+      if (!user) {
+        throw new NotFoundException("User doens't exists");
+      }
+
+      return user;
+    } catch (err) {
+      throw err;
+    }
   }
 
   async generateAccessToken(user: Pick<User, "id">) {
@@ -146,63 +152,97 @@ export class AuthService {
     return { user, token };
   }
 
-  async registerWithEmail(email: string, userName: string, pass: string) {
-    let user = await this.usersService.findOne({ email });
-    if (user) {
-      return null;
+  async registerWithEmail(email: string, userName: string, password: string) {
+    try {
+      let user = await this.usersService.findOneEither({
+        email: email,
+        userName: userName,
+        relations: ["charityProperty", "walletAddresses", "socials"],
+      });
+
+      if (user) {
+        throw new ConflictException("User already exists");
+      }
+
+      const verifyToken = generateRandom({
+        length: 48,
+        charset: "alphanumeric",
+        capitalization: "lowercase",
+      });
+
+      const hashed = await bcrypt.hash(password, 10);
+      user = await this.usersService.create({
+        email,
+        userName,
+        password: hashed,
+        verifyToken,
+      });
+
+      this.mailService.sendVerificationEmail(
+        "localhost:3000",
+        email,
+        verifyToken,
+      );
+      return user;
+    } catch (err) {
+      throw err;
     }
-
-    user = await this.usersService.findOne({ userName });
-    if (user) {
-      return null;
-    }
-
-    const hashed = await bcrypt.hash(pass, 10);
-    user = await this.usersService.create({
-      email,
-      userName,
-      password: hashed,
-      nonce: Math.floor(Math.random() * 1000000)
-    });
-
-    return user;
   }
 
-  async registerWithWallet(address: string, network: string, nonce: string, signature: string) {
-    
-    const walletAddress = await this.usersService.findOne({
-      walletAddress: { address, network },
-    });
-    
-    if (walletAddress) {
-      return null;
+  async registerWithWallet(
+    address: string,
+    network: string,
+    signature: string,
+  ) {
+    try {
+      let user = await this.usersService.findOne({
+        walletAddress: { address, network },
+      });
+
+      if (user) {
+        throw new ConflictException("User already exists");
+      }
+
+      const nonce = await this.nonceRepository.findOne({
+        publicAddress: address,
+      });
+
+      if (!nonce) {
+        throw new NotAcceptableException("Nonce was expired");
+      }
+
+      const verifiedAddress = this.etherUtilService.recoverPersonalSignature(
+        nonce.nonce,
+        signature,
+      );
+
+      if (verifiedAddress.toLowerCase() !== address.toLowerCase()) {
+        throw new NotAcceptableException("Invalid signature");
+      }
+
+      const userName = generateRandom({
+        length: 7,
+        charset: "alphanumeric",
+        readable: true,
+        capitalization: "lowercase",
+      });
+
+      user = await this.usersService.create({
+        email: null,
+        userName,
+        password: null,
+      });
+
+      await this.walletAddressesService.create(user.id, {
+        address,
+        type: "auth",
+        network,
+      });
+
+      return user;
+    } catch (err) {
+      throw err;
     }
-    
-    const message = `I am signing my one-time nonce: ${nonce}`;
-    const verifiedAddress = await sigUtil.recoverPersonalSignature({ data: message, signature });
-    if (verifiedAddress.toLowerCase() !== address.toLowerCase()) return null;
-    
-
-    const userName = generateRandomString({
-      length: 7,
-      charset: "alphanumeric",
-      readable: true,
-      capitalization: "lowercase",
-    });
-
-    const user = await this.usersService.create({
-      email: null,
-      userName,
-      password: null,
-      nonce: Math.floor(Math.random() * 1000000)
-    });
-    await this.walletAddressesService.create(user.id, {
-      address,
-      type: "auth",
-      network,
-    });
-
-    return user;
   }
 
   async validateRecaptcha(token: string) {
@@ -224,11 +264,31 @@ export class AuthService {
     return res.data;
   }
 
-  async checkWalletExist(address: string, network: string, type: string) {
-    const walletAddress = await this.usersService.findOne({
-      walletAddress: { address, network, type },
-    });
+  async generateNonce(address: string) {
+    try {
+      const oneTime = this.etherUtilService.generateNonce();
 
-    return { nonce: walletAddress?.nonce };
+      let nonce = await this.nonceRepository.findOne({
+        publicAddress: address,
+      });
+      if (!nonce) {
+        nonce = this.nonceRepository.create({
+          publicAddress: address,
+          nonce: oneTime,
+        });
+        await this.nonceRepository.persistAndFlush(nonce);
+      } else {
+        nonce = this.nonceRepository.assign(nonce, { nonce: oneTime });
+        await this.nonceRepository.flush();
+      }
+
+      return nonce;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async verifyEmail(token: string) {
+    return this.usersService.setEmailVerify(token);
   }
 }

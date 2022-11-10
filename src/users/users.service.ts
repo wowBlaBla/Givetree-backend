@@ -18,6 +18,7 @@ interface FindOneArgs extends FindAllArgs {
   id?: number;
   email?: string;
   userName?: string;
+  verifyToken?: string;
   walletAddress?: CreateWalletAddressDto;
   postId?: number;
 }
@@ -51,6 +52,7 @@ export class UsersService {
     email,
     userName,
     walletAddress,
+    verifyToken,
     postId,
     relations,
   }: FindOneArgs) {
@@ -66,6 +68,8 @@ export class UsersService {
         { [expr("lower(user_name)")]: userName.toLowerCase() },
         relations,
       );
+    } else if (verifyToken) {
+      return this.usersRepository.findOne({ verifyToken }, relations);
     } else if (walletAddress) {
       return this.usersRepository.findOne(
         { walletAddresses: walletAddress },
@@ -77,14 +81,12 @@ export class UsersService {
     return null;
   }
 
-  async findEither(
-    id: number,
+  async findOneEither(
     { email, userName, walletAddress, relations }: FindOneArgs,
+    withoutId?: number,
   ) {
-    const condition = { $or: [] };
-    let user: User;
-
     if (email || userName || walletAddress) {
+      const condition = { $or: [] };
       if (email) {
         condition["$or"].push({
           [expr("lower(email)")]: email.toLowerCase(),
@@ -101,16 +103,17 @@ export class UsersService {
         });
       }
 
-      const res = await this.usersRepository.find(
-        {
-          $and: [{ id: { $ne: id } }, condition],
-        },
-        relations,
-      );
-      user = res[0];
+      const where = withoutId
+        ? {
+            $and: [{ id: { $ne: withoutId } }, condition],
+          }
+        : condition;
+
+      const res = await this.usersRepository.findOne(where, relations);
+      return res;
     }
 
-    return user;
+    return null;
   }
 
   async update(
@@ -196,5 +199,18 @@ export class UsersService {
   async remove(id: number) {
     await this.usersRepository.nativeDelete({ id });
     return true;
+  }
+
+  async setEmailVerify(token: string) {
+    const user = await this.findOne({ verifyToken: token });
+    if (user) {
+      const newUser = this.usersRepository.assign(user, {
+        isEmailVerified: true,
+      });
+      await this.usersRepository.flush();
+      return newUser;
+    } else {
+      return null;
+    }
   }
 }

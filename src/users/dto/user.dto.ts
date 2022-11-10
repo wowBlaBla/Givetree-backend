@@ -7,7 +7,14 @@ export class UserDto {
   constructor(
     partial: Pick<
       User,
-      "id" | "email" | "userName" | "type" | "bio" | "profileImage" | "banner"
+      | "id"
+      | "email"
+      | "userName"
+      | "type"
+      | "bio"
+      | "profileImage"
+      | "banner"
+      | "isEmailVerified"
     >,
   ) {
     Object.assign(this, partial);
@@ -40,4 +47,8 @@ export class UserDto {
   @Expose()
   @ApiProperty()
   readonly banner: string;
+
+  @Expose()
+  @ApiProperty()
+  readonly isEmailVerified: string;
 }

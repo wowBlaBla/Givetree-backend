@@ -11,7 +11,9 @@ import { AuthService } from "./auth.service";
 import { RefreshToken } from "../database/entities/refresh-token.entity";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 import { LocalStrategy } from "./strategies/local.strategy";
-import { NoncesModule } from "src/nonces/nonces.module";
+import { MailService } from "src/services/mail.service";
+import { EtherUtilService } from "src/services/ether-util.service";
+import { Nonce } from "src/database/entities/nonce.entity";
 
 @Module({
   controllers: [AuthController],
@@ -27,10 +29,17 @@ import { NoncesModule } from "src/nonces/nonces.module";
     }),
     UsersModule,
     WalletAddressesModule,
-    NoncesModule,
     HttpModule,
     MikroOrmModule.forFeature([RefreshToken]),
+    MikroOrmModule.forFeature([Nonce]),
   ],
-  providers: [AuthService, AuthResolver, LocalStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    AuthResolver,
+    LocalStrategy,
+    JwtStrategy,
+    MailService,
+    EtherUtilService,
+  ],
 })
 export class AuthModule {}

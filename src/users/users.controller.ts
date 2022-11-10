@@ -91,7 +91,10 @@ export class UsersController {
       "email" | "userName" | "walletAddress"
     >,
   ) {
-    const result = await this.usersService.findEither(user.id, updateUserDto);
+    const result = await this.usersService.findOneEither(
+      updateUserDto,
+      user.id,
+    );
     if (result) {
       throw new UnauthorizedException(`User already exists.`);
     }
