@@ -279,7 +279,7 @@ export class MailService {
                             <tr>
                               <td>
                                 <h1>Confirm your email</h1>
-                                <h2>You can change your password</h2>
+                                <h2>You are just one step away to register</h2>
                                 <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
                                   <tbody>
                                     <tr>
@@ -604,7 +604,7 @@ export class MailService {
                             <tr>
                               <td>
                                 <h1>Reset Password</h1>
-                                <h2>You are just one step away to register</h2>
+                                <h2>You can change your password</h2>
                                 <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
                                   <tbody>
                                     <tr>
