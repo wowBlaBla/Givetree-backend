@@ -181,10 +181,14 @@ export class UsersService {
   async resetPassword(id: number, resetPasswordDto: ResetPasswordDto) {
     const user = await this.usersRepository.findOne({ id: id });
 
-    const match = await bcrypt.compare(
-      resetPasswordDto.currentPassword,
-      user.password,
-    );
+    let match = true;
+    if (resetPasswordDto.currentPassword) {
+      match = await bcrypt.compare(
+        resetPasswordDto.currentPassword,
+        user.password,
+      );
+    }
+
     if (match) {
       const hashed = await bcrypt.hash(resetPasswordDto.newPassword, 10);
       this.usersRepository.assign(user, { password: hashed });

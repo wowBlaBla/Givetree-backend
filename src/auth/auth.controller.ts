@@ -22,6 +22,7 @@ import {
   RegisterUserWithWalletBody,
 } from "./dto/register-user.body";
 import { RegisterUserResponse } from "./dto/register-user.response";
+import { ResetPasswordBody } from "./dto/reset-password.body";
 import { ValidateRecaptchaBody } from "./dto/validate-recaptcha.body";
 import { ValidateRecaptchaResponse } from "./dto/validate-recaptcha.response";
 import { VerifyEmailBody } from "./dto/verify-email.body";
@@ -254,6 +255,46 @@ export class AuthController {
       } else {
         throw new NotFoundException("User doens't exists");
       }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  @Post("request-reset-password")
+  @ApiCreatedResponse({
+    description: "Email successfully sent.",
+    type: Boolean,
+  })
+  async requestResetPassword(
+    @Body() resetPasswordInput: LoginUserWithEmailBody,
+  ) {
+    try {
+      if (!resetPasswordInput.email) {
+        throw new BadRequestException("Email must be provided");
+      }
+
+      const res = await this.authService.requestResetPassword(
+        resetPasswordInput.email,
+      );
+
+      return res;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  @Post("reset-password")
+  @ApiCreatedResponse({
+    description: "Password successfully changed",
+    type: Boolean,
+  })
+  async resetPassword(@Body() resetPasswordBody: ResetPasswordBody) {
+    try {
+      const ret = await this.authService.resetPassword(
+        resetPasswordBody.token,
+        resetPasswordBody.password,
+      );
+      return ret;
     } catch (err) {
       throw err;
     }

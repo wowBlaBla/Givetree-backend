@@ -22,7 +22,7 @@ export class UpdateProfileDto {
   banner?: string;
 
   @ApiProperty()
-  nonce?: number;
+  verifyToken?: string;
 
   @ApiProperty()
   readonly charityProperty?: CreateCharityDto;
