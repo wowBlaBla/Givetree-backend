@@ -191,7 +191,10 @@ export class UsersService {
 
     if (match) {
       const hashed = await bcrypt.hash(resetPasswordDto.newPassword, 10);
-      this.usersRepository.assign(user, { password: hashed });
+      this.usersRepository.assign(user, {
+        password: hashed,
+        verifyToken: null,
+      });
       await this.usersRepository.flush();
 
       return user;
@@ -210,6 +213,7 @@ export class UsersService {
     if (user) {
       const newUser = this.usersRepository.assign(user, {
         isEmailVerified: true,
+        verifyToken: null,
       });
       await this.usersRepository.flush();
       return newUser;

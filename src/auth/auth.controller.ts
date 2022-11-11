@@ -228,6 +228,27 @@ export class AuthController {
     }
   }
 
+  // @Post("request-verify-email")
+  // @ApiCreatedResponse({
+  //   description: "Email successfully sent.",
+  //   type: Boolean,
+  // })
+  // async requestVerifyEmail(@Body() resetPasswordInput: LoginUserWithEmailBody) {
+  //   try {
+  //     if (!resetPasswordInput.email) {
+  //       throw new BadRequestException("Email must be provided");
+  //     }
+
+  //     const res = await this.authService.requestResetPassword(
+  //       resetPasswordInput.email,
+  //     );
+
+  //     return res;
+  //   } catch (err) {
+  //     throw err;
+  //   }
+  // }
+
   @Post("verify-email")
   @ApiCreatedResponse({
     description: "Verified email successfully",
