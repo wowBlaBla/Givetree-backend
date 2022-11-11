@@ -178,11 +178,7 @@ export class AuthService {
         verifyToken,
       });
 
-      this.mailService.sendVerificationEmail(
-        "localhost:3000",
-        email,
-        verifyToken,
-      );
+      this.mailService.sendVerificationEmail(email, verifyToken);
       return user;
     } catch (err) {
       throw err;
@@ -290,5 +286,46 @@ export class AuthService {
 
   async verifyEmail(token: string) {
     return this.usersService.setEmailVerify(token);
+  }
+
+  async requestResetPassword(email: string) {
+    try {
+      const user = await this.usersService.findOne({
+        email,
+      });
+
+      if (user) {
+        const verifyToken = generateRandom({
+          length: 48,
+          charset: "alphanumeric",
+          capitalization: "lowercase",
+        });
+
+        await this.usersService.update(user.id, { verifyToken });
+        this.mailService.sendResetPasswordEmail(user.email, verifyToken);
+        return true;
+      } else {
+        throw new NotFoundException("User doesn't exist");
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    try {
+      const user = await this.usersService.findOne({
+        verifyToken: token,
+      });
+
+      if (user) {
+        this.usersService.resetPassword(user.id, { newPassword });
+        return true;
+      } else {
+        throw new NotFoundException("User doesn't exist");
+      }
+    } catch (err) {
+      throw err;
+    }
   }
 }
